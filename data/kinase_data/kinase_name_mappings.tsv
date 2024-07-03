@@ -1,0 +1,304 @@
+GENE	PROTEIN	ORGANISM	ACC#	MW_(DA)	pI	MODIFICATION SUMMARY
+AAK1	AAK1	human	Q2M2I8	103,885	6.16	K-ac, K-m3, K-ub, R-m1, S-gl, S-p, T-gl, T-p, Y-p
+ACVR2A	ACVR2A	human	P27037	57,848	5.61	K-ub, N-ng, S-p, T-p, Y-p
+ACVR2B	ACVR2B	human	Q13705	57,724	5.46	K-ub, S-p, T-p
+AKT1	AKT1	human	P31749	55,686	5.75	K-ac, K-m1, K-m3, K-sm, K-ub, R-m2, R-me, S-gl, S-p, T-gl, T-p, Y-p
+AKT2	AKT2	human	P31751	55,769	5.98	K-ac, K-ub, S-p, T-p, Y-p
+AKT3	AKT3	human	Q9Y243	55,775	5.72	K-sm, K-ub, S-p, T-p, Y-p
+ACVR1	ALK2	human	Q04771	57,153	7.12	K-ub, S-p, T-p
+ACVR1B	ALK4	human	P36896	56,807	6.6	K-ub, S-p, T-p, Y-p
+ALPK1	ALPHAK3	human	Q96QP1	138,861	5.83	S-p, T-p, Y-p
+PRKAA1	AMPKA1	human	Q13131	64,009	8.32	K-ac, K-sc, K-sm, K-ub, S-p, T-p, Y-p
+PRKAA2	AMPKA2	human	P54646	62,320	7.65	K-ac, K-sc, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+RIPK4	ANKRD3	human	P57078	91,611	6.69	S-p, T-p
+MAP3K5	ASK1	human	Q99683	154,537	5.52	K-ac, K-sm, K-ub, R-me, S-p, T-p, Y-p
+ATM	ATM	human	Q13315	350,687	6.39	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+ATR	ATR	human	Q13535	301,367	7.17	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+AURKA	AURA	human	O14965	45,823	9.45	K-ac, K-ub, S-p, T-p, Y-p
+AURKB	AURB	human	Q96GD4	39,311	9.36	K-sm, K-ub, R-m1, S-p, T-p, Y-p
+AURKC	AURC	human	Q9UQB9	35,591	8.96	K-ac, K-ub, S-p, T-p, Y-p
+BCKDK	BCKDK	human	O14874	46,360	8.97	K-ac, K-m1, K-sc, K-ub, S-p, T-p, Y-p
+BMP2K	BIKE	human	Q9NSY1	129,172	6.05	K-ac, K-ub, S-p, T-p, Y-p
+BMPR1A	BMPR1A	human	P36894	60,198	7.71	K-ub, S-p, Y-p
+BMPR1B	BMPR1B	human	O00238	56,930	7.78	K-ub, S-p, T-ga, T-p, Y-p
+BMPR2	BMPR2	human	Q13873	115,201	5.82	K-ac, K-ub, N-ng, S-p, T-p, Y-p
+BRAF	BRAF	human	P15056	84,437	7.29	K-ac, K-ub, S-p, T-p, Y-p
+BRSK1	BRSK1	human	Q8TDC3	85,087	9.39	K-ub, R-m1, S-p, T-p, Y-p
+BRSK2	BRSK2	human	Q8IWQ3	81,633	8.97	K-ub, R-m1, S-p, T-p, Y-p
+BUB1	BUB1	human	O43683	122,375	6.03	K-ac, K-ub, S-p, T-p, Y-p
+CAMK1	CAMK1A	human	Q14012	41,337	5.12	K-ub, S-p, T-p, Y-p
+PNCK	CAMK1B	human	Q6P2M8	38,500	6.28	K-ub, S-p, T-p, Y-p
+CAMK1D	CAMK1D	human	Q8IU85	42,914	6.77	K-ac, K-sm, K-ub, S-p, T-p, Y-p
+CAMK1G	CAMK1G	human	Q96NX5	53,087	7.83	K-ac, S-p
+CAMK2A	CAMK2A	human	Q9UQM7	54,088	6.61	K-ac, K-m1, K-m3, K-ub, R-m2, S-p, T-gl, T-p, Y-p
+CAMK2B	CAMK2B	human	Q13554	72,678	6.87	K-ac, K-m1, K-m2, K-ub, N-ng, S-gl, S-p, T-gl, T-p, Y-p
+CAMK2D	CAMK2D	human	Q13557	56,369	6.81	K-ac, K-m1, K-ub, S-p, T-gl, T-p, Y-p
+CAMK2G	CAMK2G	human	Q13555	62,607	7.9	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+CAMK4	CAMK4	human	Q16566	51,926	5.6	K-ac, K-ub, S-gl, S-p, T-gl, T-p, Y-p
+CAMKK1	CAMKK1	human	Q8N5S9	55,735	5.55	D-ca, K-ub, R-m1, R-m2, S-p, T-p, Y-p
+CAMKK2	CAMKK2	human	Q96RR4	64,746	6.25	K-ub, S-p, T-p, Y-p
+MYLK3	CAMLCK	human	Q32MK0	88,393	5.76	S-p, T-p, Y-p
+CDC7	CDC7	human	O00311	63,888	8.96	K-ac, K-sm, K-ub, S-p, T-p, Y-p
+CDK1	CDK1	human	P06493	34,095	8.38	K-ac, K-sc, K-sm, K-ub, S-p, T-p, Y-p
+CDK10	CDK10	human	Q15131	41,038	9.06	K-ub, T-p, Y-p
+CDK12	CDK12	human	Q9NYV4	164,155	9.46	K-ac, K-ub, R-m1, R-m2, S-gl, S-p, T-gl, T-p, Y-p
+CDK13	CDK13	human	Q14004	164,923	9.71	D-ca, K-ac, K-sm, K-ub, S-p, T-p, Y-p
+CDK14	CDK14	human	O94921	53,057	9.06	K-ub, S-p, T-p, Y-p
+CDK16	CDK16	human	Q00536	55,716	7.23	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+CDK17	CDK17	human	Q00537	59,582	9.1	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+CDK18	CDK18	human	Q07002	54,424	8.84	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+CDK19	CDK19	human	Q9BWU1	56,802	8.66	K-ub, S-p, T-p, Y-p
+CDK2	CDK2	human	P24941	33,930	8.8	K-ac, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+CDK3	CDK3	human	Q00526	35,046	8.86	K-ub, S-p, T-p, Y-p
+CDK4	CDK4	human	P11802	33,730	6.52	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+CDK5	CDK5	human	Q00535	33,304	7.57	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+CDK6	CDK6	human	Q00534	36,938	6.02	D-p, K-ac, K-m1, K-ub, S-p, T-p, Y-p
+CDK7	CDK7	human	P50613	39,038	8.66	K-ub, S-p, T-p, Y-p
+CDK8	CDK8	human	P49336	53,284	8.72	K-ac, K-ub, S-p, T-p, Y-p
+CDK9	CDK9	human	P50750	42,778	8.97	K-ac, K-me, K-sm, K-ub, R-m2, R-me, S-p, T-p, Y-p
+CDKL1	CDKL1	human	Q00532	41,833	9.04	S-p, T-p, Y-p
+CDKL5	CDKL5	human	O76039	107,519	9.56	K-ac, N-ng, S-p, T-p, Y-p
+TRPM7	CHAK1	human	Q96QT4	212,697	8.1	D-ca, K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+TRPM6	CHAK2	human	Q9BX84	231,708	7.86	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+CHEK1	CHK1	human	O14757	54,434	8.5	K-ac, K-ub, S-p, T-p
+CHEK2	CHK2	human	O96017	60,915	5.65	K-ac, K-p, K-ub, S-p, T-gl, T-p, Y-p
+CSNK1A1	CK1A	human	P48729	38,915	9.59	K-ac, K-ub, S-p, T-p, Y-p
+CSNK1A1L	CK1A2	human	Q8N752	39,086	9.48	K-ac, K-ub, S-p, T-p, Y-p
+CSNK1D	CK1D	human	P48730	47,330	9.77	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+CSNK1E	CK1E	human	P49674	47,315	9.68	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+CSNK1G1	CK1G1	human	Q9HCP0	48,511	9.13	K-ub, S-p, T-p, Y-p
+CSNK1G2	CK1G2	human	P78368	47,457	9.16	K-ub, R-m1, S-p, T-p, Y-p
+CSNK1G3	CK1G3	human	Q9Y6M4	51,389	9.29	K-m1, K-ub, S-p, T-p, Y-p
+CSNK2A1	CK2A1	human	P68400	45,144	7.29	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+CSNK2A2	CK2A2	human	P19784	41,213	8.65	K-ac, K-sc, K-ub, R-m1, S-p, T-gl, Y-p
+CLK1	CLK1	human	P49759	57,291	9.05	K-sm, K-ub, S-p, T-p, Y-p
+CLK2	CLK2	human	P49760	60,090	9.69	S-p, T-p, Y-p
+CLK3	CLK3	human	P49761	73,515	9.94	K-sm, K-ub, S-p, T-p, Y-p
+CLK4	CLK4	human	Q9HAZ1	57,492	8.92	K-sm, S-p, T-p, Y-p
+MAP3K8	COT	human	P41279	52,925	5.54	S-p, T-p, Y-p
+CIT	CRIK	human	O14578	231,431	6.16	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+DAPK1	DAPK1	human	P53355	160,046	6.37	K-ac, K-ub, S-p, T-p, Y-p
+DAPK2	DAPK2	human	Q9UIK4	42,898	6.45	K-ub, S-p, T-p, Y-p
+DAPK3	DAPK3	human	O43293	52,536	6.44	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+DCLK1	DCAMKL1	human	O15075	82,224	8.84	K-ub, S-p, T-p, Y-p
+DCLK2	DCAMKL2	human	Q8N568	83,606	8.63	R-m2, S-p, T-p, Y-p
+MAP3K12	DLK	human	Q12852	93,219	6.03	K-ac, K-sm, K-ub, S-p, T-p
+DMPK	DMPK1	human	Q09013	69,385	4.92	K-ub, R-m1, S-p, T-p
+PRKDC	DNAPK	human	P78527	469,089	6.75	K-ac, K-m1, K-sc, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+STK17A	DRAK1	human	Q9UEE5	46,558	5.08	K-ub, S-p
+DSTYK	DSTYK	human	Q6XUX3	105,206	6.29	K-ac, K-ub, R-m1, S-p, T-p
+DYRK1A	DYRK1A	human	Q13627	85,584	8.9	K-ac, K-ub, S-p, T-p, Y-p
+DYRK1B	DYRK1B	human	Q9Y463	69,198	9.25	K-ac, K-ub, S-p, Y-p
+DYRK2	DYRK2	human	Q92630	66,652	9.7	R-m1, S-p, T-p, Y-p
+DYRK3	DYRK3	human	O43781	65,714	9.41	K-ac, K-ub, S-p, T-p, Y-p
+DYRK4	DYRK4	human	Q9NR20	59,608	9.03	K-sm, K-ub, S-p, T-p, Y-p
+EEF2K	EEF2K	human	O00418	82,144	5.16	K-sm, K-ub, R-m1, S-p, T-p, Y-p
+MAPK3	ERK1	human	P27361	43,136	6.28	K-ac, K-m3, K-ub, R-m1, S-p, T-p, Y-p
+MAPK1	ERK2	human	P28482	41,390	6.5	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+MAPK7	ERK5	human	Q13164	88,386	5.6	K-ac, K-m1, K-sm, K-ub, S-p, T-p, Y-p
+MAPK15	ERK7	human	Q8TD08	59,832	9.17	K-ac, R-m1, S-p, T-p, Y-p
+FAM20C	FAM20C	human	Q8IXL6	66,234	7.65	N-ng, S-ga, S-p, T-ga, T-p, Y-p
+GAK	GAK	human	O14976	143,191	5.49	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+MAP4K2	GCK	human	Q12851	91,556	5.91	K-ub, S-p, T-p, Y-p
+EIF2AK4	GCN2	human	Q9P2K8	186,911	5.88	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+GRK1	GRK1	human	Q15835	63,526	5.63	K-ac, S-p, T-p
+GRK2	GRK2	human	P25098	79,574	6.89	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+GRK3	GRK3	human	P35626	79,710	7.55	K-ac, K-ub, S-p, T-p, Y-p
+GRK4	GRK4	human	P32298	66,583	7.93	K-ac, K-ub, S-p, T-p, Y-p
+GRK5	GRK5	human	P34947	67,787	8.39	K-ac, K-m3, K-ub, S-p, T-p, Y-p
+GRK6	GRK6	human	P43250	65,991	8.32	K-ac, K-ub, S-p, T-p, Y-p
+GRK7	GRK7	human	Q8WTQ7	62,212	6.18	K-ac, S-p, T-p
+GSK3A	GSK3A	human	P49840	50,981	8.95	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+GSK3B	GSK3B	human	P49841	46,744	8.98	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+HASPIN	HASPIN	human	Q8TF76	88,495	9.32	K-ac, K-m1, K-ub, S-p, T-p
+MAP4K4	HGK	human	O95819	142,101	7.09	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+HIPK1	HIPK1	human	Q86Z02	130,843	8.48	K-sm, K-ub, R-m1, S-p, T-gl, T-p, Y-p
+HIPK2	HIPK2	human	Q9H2X6	130,966	8.69	K-sm, K-ub, R-m1, S-p, T-p, Y-p
+HIPK3	HIPK3	human	Q9H422	133,743	7.16	K-ac, K-m1, K-sm, K-ub, S-p, T-p, Y-p
+HIPK4	HIPK4	human	Q8NE63	69,425	6.18	K-ac, K-ub, S-p, T-p, Y-p
+MAP4K1	HPK1	human	Q92918	91,296	8.65	K-ub, S-p, T-p, Y-p
+EIF2AK1	HRI	human	Q9BQI3	71,106	5.68	K-ac, K-ub, S-p, T-p
+HUNK	HUNK	human	P57058	79,686	9.24	K-ac, K-ub, S-p, T-p, Y-p
+CILK1	ICK	human	Q9UPZ9	71,427	9.79	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+CHUK	IKKA	human	O15111	84,640	6.27	K-ac, K-ub, S-p, T-p, Y-p
+IKBKB	IKKB	human	O14920	86,564	5.58	K-ac, K-ub, S-gl, S-p, T-p, Y-p
+IKBKE	IKKE	human	Q14164	80,462	7.91	K-ac, K-sm, K-ub, S-p, T-p, Y-p
+IRAK1	IRAK1	human	P51617	76,537	6.18	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+IRAK4	IRAK4	human	Q9NWZ3	51,530	5.24	K-ac, K-ub, S-p, T-p
+ERN1	IRE1	human	O75460	109,735	5.98	K-ac, K-ub, S-p, T-p, Y-p
+ERN2	IRE2	human	Q76MJ5	102,480	6.73	S-p, Y-p
+MAPK8	JNK1	human	P45983	48,296	6.43	K-ac, K-ub, S-p, T-p, Y-p
+MAPK9	JNK2	human	P45984	48,139	5.41	K-ac, K-ub, S-p, T-p, Y-p
+MAPK10	JNK3	human	P53779	52,585	6.33	K-ac, K-ub, S-p, T-p, Y-p
+MAP4K5	KHS1	human	Q9Y4K4	95,024	7.97	K-ub, S-p, T-p, Y-p
+MAP4K3	KHS2	human	Q8IVH8	101,316	7.38	K-ac, S-p, T-p, Y-p
+UHMK1	KIS	human	Q8TAS1	46,546	5.59	K-ub, S-p, Y-p
+LATS1	LATS1	human	O95835	126,870	8.84	K-ac, K-m1, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+LATS2	LATS2	human	Q9NRM7	120,136	8.44	K-ac, K-ub, S-p, T-gl, T-p, Y-p
+STK11	LKB1	human	Q15831	48,636	7.12	K-ac, N-ng, S-p, T-p, Y-p
+STK10	LOK	human	O94804	112,135	6.52	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+LRRK2	LRRK2	human	Q5S007	286,103	6.35	K-ub, S-p, T-p, Y-p
+MAK	MAK	human	P20794	70,581	9.67	S-p, T-p, Y-p
+MAP3K15	MAP3K15	human	Q6ZN16	147,437	5.42	K-m1, S-p, T-p, Y-p
+MAPKAPK2	MAPKAPK2	human	P49137	45,568	8.87	K-ac, K-ub, S-p, T-p, Y-p
+MAPKAPK3	MAPKAPK3	human	Q16644	42,987	6.87	K-ac, K-ub, S-p, T-p, Y-p
+MAPKAPK5	MAPKAPK5	human	Q8IW41	54,220	7.66	K-ac, K-ub, S-p, T-p, Y-p
+MARK1	MARK1	human	Q9P0L2	89,003	9.42	K-sc, K-ub, R-m1, S-p, T-p, Y-p
+MARK2	MARK2	human	Q7KZI7	87,911	9.73	K-sc, K-ub, R-m1, S-p, T-gl, T-p, Y-p
+MARK3	MARK3	human	P27448	84,429	9.59	K-sc, K-ub, R-m1, S-p, T-p, Y-p
+MARK4	MARK4	human	Q96L34	82,520	9.7	K-sc, K-ub, R-m1, S-p, T-p, Y-p
+MASTL	MASTL	human	Q96GX5	97,319	5.67	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+MAP2K1	MEK1	human	Q02750	43,439	6.18	D-ca, K-ac, K-sm, K-ub, N-ng, S-p, T-p, Y-p
+MAP2K2	MEK2	human	P36507	44,424	6.12	D-ca, K-sm, K-ub, S-p, T-gl, T-p
+MAP2K5	MEK5	human	Q13163	50,112	5.98	K-ub, R-m1, S-p, T-p
+MAP3K1	MEKK1	human	Q13233	164,470	7.93	K-sm, K-ub, S-p, T-p, Y-p
+MAP3K2	MEKK2	human	Q9Y2U5	69,741	8.04	K-m1, K-m3, K-me, K-ub, S-p, T-p, Y-p
+MAP3K3	MEKK3	human	Q99759	70,898	8.98	K-ub, R-m1, S-p, T-p, Y-p
+MAP3K6	MEKK6	human	O95382	142,596	6.7	K-ub, S-p, T-p, Y-p
+MELK	MELK	human	Q14680	74,642	8.92	K-m3, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+MINK1	MINK	human	Q8N4C8	149,822	7.85	K-ac, K-m1, K-ub, R-m1, S-gl, S-p, T-p, Y-p
+MAP3K9	MLK1	human	P80192	121,895	5.63	K-ac, K-ub, S-p, T-p, Y-p
+MAP3K10	MLK2	human	Q02779	103,695	6.56	R-m1, S-p, T-p
+MAP3K11	MLK3	human	Q16584	92,688	8.4	K-ub, R-m1, S-p, T-p
+MAP3K21	MLK4	human	Q5TCX8	113,957	8.97	K-ub, S-p, T-p, Y-p
+MKNK1	MNK1	human	Q9BUB5	51,342	6.26	K-ub, R-m1, S-p, T-p, Y-p
+MKNK2	MNK2	human	Q9HBH9	51,875	5.8	K-sm, K-ub, S-p, T-p
+MOK	MOK	human	Q9UQ07	48,014	9.64	K-ub, S-p, T-p, Y-p
+MOS	MOS	human	P00540	37,820	9.15	S-p, T-p, Y-p
+STK16	MPSK1	human	O75716	34,656	6.42	K-ub, S-p, T-p, Y-p
+CDC42BPA	MRCKA	human	Q5VT25	197,307	6.16	K-ac, K-ub, R-m1, S-gl, S-p, T-p, Y-p
+CDC42BPB	MRCKB	human	Q9Y5S2	194,315	5.97	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+RPS6KA5	MSK1	human	O75582	89,865	6.63	S-p, T-p, Y-p
+RPS6KA4	MSK2	human	O75676	85,606	8.51	K-sm, K-ub, R-m1, S-p, T-p, Y-p
+STK4	MST1	human	Q13043	55,630	4.97	K-ac, K-m2, K-ub, S-p, T-p, Y-p
+STK3	MST2	human	Q13188	56,301	5.12	K-ac, K-ub, S-p, T-p, Y-p
+STK24	MST3	human	Q9Y6E0	49,308	5.49	K-ac, K-ub, N-ng, S-p, T-p, Y-p
+STK26	MST4	human	Q9P289	46,529	5.16	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+MTOR	MTOR	human	P42345	288,892	6.73	K-ac, K-ub, S-p, T-p, Y-p
+MYLK4	MYLK4	human	Q86YV6	44,508	5.89	S-p
+MYO3A	MYO3A	human	Q8NEV4	186,208	9.04	K-ac, K-m1, S-p, T-p, Y-p
+MYO3B	MYO3B	human	Q8WXR4	151,829	8.4	K-ub, R-m1, S-p, T-p, Y-p
+STK38	NDR1	human	Q15208	54,190	6.7	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+STK38L	NDR2	human	Q9Y2H1	54,003	6.36	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+NEK1	NEK1	human	Q96PY6	142,828	5.67	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+NEK11	NEK11	human	Q8NG66	74,192	5	K-ac, S-p, T-p, Y-p
+NEK2	NEK2	human	P51955	51,763	9.03	K-ac, K-ub, S-p, T-p
+NEK3	NEK3	human	P51956	57,705	6.72	K-ac, R-m1, S-p, T-p, Y-p
+NEK4	NEK4	human	P51957	94,597	8.04	D-ca, K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+NEK5	NEK5	human	Q6P3R8	81,445	9.05	K-ac, Y-p
+NEK6	NEK6	human	Q9HC98	35,714	8.26	K-ub, S-p, T-p, Y-p
+NEK7	NEK7	human	Q8TDX7	34,551	8.49	K-ub, S-p, T-p, Y-p
+NEK8	NEK8	human	Q86SG6	74,806	8.02	K-ub, S-p, T-p
+NEK9	NEK9	human	Q8TD19	107,168	5.51	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+MAP3K14	NIK	human	Q99558	104,042	7.77	K-ub, S-p, T-p, Y-p
+NIM1K	NIM1	human	Q8IY84	49,606	8.53	T-p, Y-p
+NLK	NLK	human	Q9UBE8	58,283	8.35	K-ub, S-p, T-p, Y-p
+NUAK1	NUAK1	human	O60285	74,305	8.97	R-m1, S-p, T-p, Y-p
+NUAK2	NUAK2	human	Q9H093	69,612	9.01	R-m1, S-p, T-p, Y-p
+OXSR1	OSR1	human	O95747	58,022	6.03	K-ac, K-m1, K-ub, R-m1, S-p, T-p
+MAPK14	P38A	human	Q16539	41,293	5.48	K-ac, K-sm, K-ub, R-m1, R-me, S-p, T-p, Y-p
+MAPK11	P38B	human	Q15759	41,357	5.56	S-p, T-p, Y-p
+MAPK13	P38D	human	O15264	42,090	8.48	K-ub, S-p, T-p, Y-p
+MAPK12	P38G	human	P53778	41,940	5.98	K-ac, S-p, T-p, Y-p
+RPS6KB1	P70S6K	human	P23443	59,140	6.21	K-ac, K-ub, R-m1, S-gl, S-p, T-p, Y-p
+RPS6KB2	P70S6KB	human	Q9UBS0	53,455	6.91	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+RPS6KA1	P90RSK	human	Q15418	82,723	7.68	K-ac, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+PAK1	PAK1	human	Q13153	60,647	5.55	K-ac, K-sm, K-ub, N-ng, S-p, T-p, Y-p
+PAK2	PAK2	human	Q13177	58,043	5.69	D-ca, K-ac, K-ub, R-m1, R-m2, S-p, T-p, Y-p
+PAK3	PAK3	human	O75914	62,310	5.33	K-ac, K-ub, S-p, T-p, Y-p
+PAK4	PAK4	human	O96013	64,072	9.76	K-ac, K-m1, K-me, K-ub, R-m1, S-p, T-p, Y-p
+PAK5	PAK5	human	Q9P286	80,745	8.19	K-ac, R-m1, R-m2, S-p, T-p, Y-p
+PAK6	PAK6	human	Q9NQU5	74,869	9.57	S-p, T-p, Y-p
+PASK	PASK	human	Q96RG2	142,929	4.75	K-ac, K-ub, S-p, T-p, Y-p
+PBK	PBK	human	Q96KB5	36,085	4.98	K-ac, K-sm, K-ub, S-p, T-p, Y-p
+PDK1	PDHK1	human	Q15118	49,244	8.92	K-ac, R-m1, S-p, T-p, Y-p
+PDK4	PDHK4	human	Q16654	46,469	6.19	K-ub, S-p, T-p
+PDPK1	PDK1	human	O15530	63,152	6.95	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+EIF2AK3	PERK	human	Q9NZJ5	125,216	5.27	K-ub, N-ng, S-p, T-p, Y-p
+PHKG1	PHKG1	human	Q16816	45,024	6.4	K-ac, K-m1, S-p, T-p, Y-p
+PHKG2	PHKG2	human	P15735	46,442	5.95	K-ub, S-p, T-p, Y-p
+PIM1	PIM1	human	P11309	35,686	5.72	K-sm, K-ub, S-p, T-p, Y-p
+PIM2	PIM2	human	Q9P1W9	34,190	5.58	K-ub, S-p, T-p, Y-p
+PIM3	PIM3	human	Q86V86	35,891	5.75	K-ub, S-p, T-p
+PINK1	PINK1	human	Q9BXM7	62,769	9.43	K-ac, K-ub, S-p, T-p
+PRKACA	PKACA	human	P17612	40,590	8.84	K-ac, K-ub, S-p, T-p, Y-p
+PRKACB	PKACB	human	P22694	40,623	8.84	K-ac, K-ub, S-p, T-p, Y-p
+PRKACG	PKACG	human	P22612	40,434	8.7	K-ub, R-m2, T-p, Y-p
+PRKCA	PKCA	human	P17252	76,750	6.61	K-ac, K-ub, R-m1, S-gl, S-p, T-gl, T-p, Y-p
+PRKCB	PKCB	human	P05771	76,869	6.57	K-ac, K-ub, R-m1, S-gl, S-p, T-gl, T-p, Y-p
+PRKCD	PKCD	human	Q05655	77,505	7.93	K-ac, K-sm, K-ub, R-m1, S-p, T-gl, T-p, Y-p
+PRKCE	PKCE	human	Q02156	83,674	6.73	K-ac, K-sm, K-ub, S-gl, S-p, T-gl, T-p, Y-p
+PRKCG	PKCG	human	P05129	78,448	7.27	K-ac, K-ub, R-m1, S-gl, S-p, T-gl, T-p, Y-p
+PRKCH	PKCH	human	P24723	77,828	7.94	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+PRKCI	PKCI	human	P41743	68,262	5.54	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+PRKCQ	PKCT	human	Q04759	81,865	7.69	K-ac, K-ub, S-gl, S-p, T-p, Y-p
+PRKCZ	PKCZ	human	Q05513	67,660	5.49	K-ac, R-m1, S-gl, S-p, T-gl, T-p, Y-p
+PRKG1	PKG1	human	Q13976	76,364	5.74	K-ac, R-m1, S-p, T-p, Y-p
+PRKG2	PKG2	human	Q13237	87,432	8.67	K-m2, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+PKN1	PKN1	human	Q16512	103,932	5.99	K-ac, K-ub, R-m1, R-m2, S-p, T-p, Y-p
+PKN2	PKN2	human	Q16513	112,035	5.95	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+PKN3	PKN3	human	Q6P5Z2	99,421	8.77	K-ac, K-ub, R-m1, S-p, T-p
+EIF2AK2	PKR	human	P19525	62,094	8.58	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+PLK1	PLK1	human	P53350	68,255	9.09	K-ac, K-m1, K-m2, K-me, K-sm, K-ub, S-p, T-p, Y-p
+PLK2	PLK2	human	Q9NYY3	78,237	8.52	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+PLK3	PLK3	human	Q9H4B4	71,629	9.28	S-p, T-p, Y-p
+PLK4	PLK4	human	O00444	108,972	8.79	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+PRKD1	PRKD1	human	Q15139	101,704	6.16	K-ac, K-ub, S-p, T-p, Y-p
+PRKD2	PRKD2	human	Q9BZL6	96,722	6.39	K-ac, K-ub, S-p, T-p, Y-p
+PRKD3	PRKD3	human	O94806	100,471	6.42	K-ub, S-p, T-p, Y-p
+PRKX	PRKX	human	P51817	40,896	6.37	S-p, T-p
+PRPF4B	PRP4	human	Q13523	116,987	10.26	K-ac, K-m1, K-sm, K-ub, S-p, T-p, Y-p
+TP53RK	PRPK	human	Q96S44	28,160	9.56	K-ub, R-m1, S-p, T-p, Y-p
+SIK2	QIK	human	Q9H0K1	103,915	5.7	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+SIK3	QSK	human	Q9Y2K2	144,851	6.3	K-ac, K-ub, R-m1, S-gl, S-p, T-p, Y-p
+RAF1	RAF1	human	P04049	73,052	9.33	K-m1, K-ub, R-m1, S-p, T-p, Y-p
+RIPK1	RIPK1	human	Q13546	75,931	5.92	D-ca, K-ac, K-ub, R-m1, S-p, T-p, Y-p
+RIPK2	RIPK2	human	O43353	61,195	6.63	K-m1, K-ub, R-m1, S-p, T-p, Y-p
+RIPK3	RIPK3	human	Q9Y572	56,887	6.08	K-ub, R-m1, R-m2, S-p, T-p
+ROCK1	ROCK1	human	Q13464	158,175	5.67	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+ROCK2	ROCK2	human	O75116	160,900	5.75	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+RPS6KA3	RSK2	human	P51812	83,736	6.41	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+RPS6KA2	RSK3	human	Q15349	83,239	8.82	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+RPS6KA6	RSK4	human	Q9UK32	83,872	5.92	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+SBK1	SBK	human	Q52WX2	46,252	9.28	K-ub, S-p, T-p, Y-p
+SGK1	SGK1	human	O00141	48,942	8.7	K-ac, K-ub, S-p, T-p, Y-p
+SGK3	SGK3	human	Q96BR1	57,108	6.45	K-m2, K-ub, S-p, T-p, Y-p
+SIK1	SIK	human	P57059	84,902	6.81	K-sm, S-p, T-p
+MYLK2	SKMLCK	human	Q9H1R3	64,685	6.6	K-ac, K-ub, S-p, T-p, Y-p
+SLK	SLK	human	Q9H2G2	142,695	5.08	K-ac, K-m1, K-ub, R-m1, S-gl, S-p, T-p, Y-p
+SMG1	SMG1	human	Q96Q15	410,501	6.03	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+MYLK	SMMLCK	human	Q15746	210,715	5.85	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+SNRK	SNRK	human	Q9NRH2	84,276	6.62	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+SRPK1	SRPK1	human	Q96SB4	74,325	5.81	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+SRPK2	SRPK2	human	P78362	77,527	4.87	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+SRPK3	SRPK3	human	Q9UPE1	62,014	6.83	K-ac, K-ub, R-m1, S-p, T-p
+TSSK6	SSTK	human	Q9BXA6	30,331	9.24	S-p
+STK33	STK33	human	Q9BYT3	57,831	6.6	K-ac, K-ub, S-p, T-p, Y-p
+STK39	STLK3	human	Q9UEW8	59,474	5.92	K-ac, K-m1, K-ub, R-m1, S-p, T-p, Y-p
+MAP3K7	TAK1	human	O43318	67,196	6.69	K-ac, K-ub, S-gl, S-p, T-p, Y-p
+TAOK1	TAO1	human	Q7L7X3	116,070	7.3	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+TAOK2	TAO2	human	Q9UL54	138,251	6.84	K-ac, K-ub, R-m1, S-p, T-p, Y-p
+TAOK3	TAO3	human	Q9H2K8	105,406	6.83	K-ac, K-ub, S-p, T-p, Y-p
+TBK1	TBK1	human	Q9UHD2	83,642	6.32	K-ac, K-ub, R-me, S-p, T-p, Y-p
+TGFBR1	TGFBR1	human	P36897	55,960	7.51	K-ub, S-p, T-p, Y-p
+TGFBR2	TGFBR2	human	P37173	64,568	5.6	K-ne, K-ub, S-gl, S-p, T-ga, T-p, Y-p
+TLK1	TLK1	human	Q9UKI8	86,700	8.88	K-ac, K-ub, S-p, T-p
+TLK2	TLK2	human	Q86UE8	87,661	8.65	K-ac, K-ub, S-p, T-p, Y-p
+TNIK	TNIK	human	Q9UKE5	154,943	6.7	K-ac, K-ub, R-m1, S-gl, S-p, T-gl, T-p, Y-p
+TSSK1B	TSSK1	human	Q9BXA7	41,618	7.6	K-ac, S-p, Y-p
+TSSK2	TSSK2	human	Q96PF2	40,939	9.02	K-ac, S-p, Y-p
+TTBK1	TTBK1	human	Q5TCY1	142,737	5.46	K-ac, K-sm, K-ub, R-m1, S-p, T-p, Y-p
+TTBK2	TTBK2	human	Q6IQ55	137,412	6.54	K-ac, K-sm, K-ub, S-p, T-p, Y-p
+TTK	TTK	human	P33981	97,072	8.41	K-ac, K-m1, K-me, K-sm, K-ub, R-m2, S-p, T-p, Y-p
+ULK1	ULK1	human	O75385	112,631	9.03	K-ac, K-ub, R-m1, S-p, T-gl, T-p
+ULK2	ULK2	human	Q8IYT8	112,694	8.84	K-ac, R-m2, S-p, T-gl, T-p, Y-p
+VRK1	VRK1	human	Q99986	45,476	9.02	K-ac, K-m1, K-sm, K-ub, S-p, T-p, Y-p
+VRK2	VRK2	human	Q86Y07	58,141	8.97	K-ac, K-m1, K-ub, S-p, T-p, Y-p
+WNK1	WNK1	human	Q9H4A3	250,794	5.94	D-ca, K-ac, K-ub, R-m1, S-p, T-p, Y-p
+WNK3	WNK3	human	Q9BYP7	198,416	5.77	K-ac, R-m1, S-gl, S-p, T-p, Y-p
+WNK4	WNK4	human	Q96J92	134,739	5.36	K-m1, K-ub, R-m1, S-p, T-p, Y-p
+STK32B	YANK2	human	Q9NY57	47,883	7.63	S-p, Y-p
+STK32C	YANK3	human	Q86UX6	54,994	6.16	K-ub, R-m1, S-p, T-p, Y-p
+STK25	YSK1	human	O00506	48,112	6.27	K-ub, S-p, T-p, Y-p
+MAP3K19	YSK4	human	Q56UN5	150,537	6.61	K-ac, K-ub, S-p, T-p
+MAP3K20	ZAK	human	Q9NYL2	91,155	7.9	K-ac, K-m1, K-ub, R-m1, R-m2, S-p, T-p, Y-p
