@@ -1,13 +1,8 @@
+library(tidyverse)
 library(data.table)
-library(stringr)
-library(dplyr)
-library(foreach)
-library(doParallel)
 library(UniProt.ws)
 library(funscoR)
-library(knitr)
 library(OmnipathR)
-
 
 ### Helper functions
 # Uniprot sequence loading helper function
@@ -29,6 +24,7 @@ uniprotSequencesFromWeb <- function (uniprotIDs, chunkSize = 25, fields = c("acc
   infoMap <- rbindlist(infoMapList)
   return (infoMap)
 }
+
 
 #' Load kinase data for substrate scoring
 #' 
@@ -83,13 +79,14 @@ load_kinase_data <- function(kinase_motifs.path = './data/kinase_data/kinase_mot
 
 }
 
+
 #' Perform substrate scoring
 #' 
 #' This function calculates substrate scores as described in https://doi.org/10.1038/s41586-022-05575-3 Fig. 3
 #' 
 #' @param intensities A data frame containing intensities.
 #' @param output.path Path to the directory where the output file will be saved.
-#' @param output_filename Name of the output file.
+#' @param output.id Name of the output file.
 #' @param kinase_data Kinase information loaded by the function load_kinase_data()
 #' @param percentile_rank_threshold Threshold for percentile rank (default: 15).
 #' @param alpha Threshold for percentile scores based of the percentage (default: 0.9).
@@ -97,104 +94,116 @@ load_kinase_data <- function(kinase_motifs.path = './data/kinase_data/kinase_mot
 #' @examples
 #' # Example usage
 #' substrate_scoring(intensities_df, "./output/", "cond1_vs_cond2.tsv", kinase_motifs_df, kinase_apriori_distributions_list, kinase_scaling_factors_df, 15)
-substrate_scoring <- function(
-    intensities, output.path, output_filename, kinase_data, 
-    percentile_rank_threshold = 15, alpha = 0.9) {
-  
+infer_baseline_KIN <- function(
+    md, output.path, output.id, kinase_data, 
+    n = 15, alpha = 0.9) {
+
   kinases <- kinase_data$kinase_name_mappings$`ACC#`
-  
   # Loading sequences from Uniprot  
-  sequences <- uniprotSequencesFromWeb(unique(intensities$LeadingProtein))
-  
-  # Mapping sequences to conditions
-  intensities$Seq <- sapply(intensities$LeadingProtein, function(x) { unlist(sequences[which(sequences$Entry == x), 'Sequence']) })
-  intensities <- intensities[which(nchar(intensities$Seq) > 0),]
-  # Removing all entries where the given phosphorylation position is not a 'S' or 'T'
-  # Kinase motif data is only for Threonine and Seronine phosphorylation sites
-  intensities <- intensities[which(str_sub(intensities$Seq, intensities$Pos, intensities$Pos) %in% c('S', 'T')),]
-  intensities <- intensities[which(!grepl(';', intensities$Protein)),]
-  intensities <- intensities[which(!is.infinite(intensities$log2FC)),]
-  # create output directory for substrate scores  
-  dir.create(paste0(output.path, '/substrate_scores/'), recursive = TRUE)
+  sequences <- uniprotSequencesFromWeb(unique(md$Uniprot))
 
-  # start parallel cluster for faster computation of substrate scores
-  cores <- detectCores()
-  cores <- min(9, cores[1])
-  cl <- makeCluster(cores - 1) # not to overload your computer
-  registerDoParallel(cl)
+  # Create output directory
+  dir.create(paste0(output.path, '/baseline_KIN/'), recursive = TRUE)
 
-  # Substrate scoring
-  sub_scores = foreach(i=1:nrow(intensities), .combine=rbind, .packages = c('data.table', 'stringr', 'dplyr')) %dopar% {
-    # for (i in 1:nrow(intensities)) { # can be used for debugging
-    row_i <- intensities[i, ]
-    target <- row_i$Protein
-    seq <- row_i$Seq
-    pos <- row_i$Pos
-    if (pos > nchar(seq)) {
+  get_modified_sequence <- function(seq, pos) {
+    if (pos > nchar(seq) || !(str_sub(seq, pos, pos) %in% c('S', 'T'))) {
+      return(NULL)
+    } else if ((pos > 5) && ((pos + 4) < nchar(seq))) {
+      return(list(seq = str_sub(seq, pos - 5, pos + 4), zero_idx = 6))
+    } else if (pos > 5) {
+      return(list(seq = str_sub(seq, pos - 5), zero_idx = 6))
+    } else if ((pos + 4) < nchar(seq)) {
+      n_seq <- str_sub(seq, 1, pos + 4)
+      return(list(seq = n_seq, zero_idx = nchar(n_seq) - 4))
+    } else {
       return(NULL)
     }
-    # Get sequence around the phosphorylation site (-5 and +4 positions)
-    if ((pos > 5) && ((pos + 4) < nchar(seq))) {
-      # not at the borders of the sequence
-      seq <- str_sub(seq, pos - 5, pos + 4)
-      zero_idx <- 6
-      seq_split <- str_extract_all(seq, stringr::boundary('character'))[[1]]
-      indices <- seq(-5, 4, 1)
-    } else if (pos > 5) {
-      # at the right border of the sequence
-      seq <- str_sub(seq, pos - 5)
-      zero_idx <- 6
-      seq_split <- str_extract_all(seq, stringr::boundary('character'))[[1]]
-      indices <- seq(-5, nchar(seq)-6, 1)
-    } else if ((pos + 4) < nchar(seq)) {
-      # at the left border of the sequence
-      seq <- str_sub(seq, 1, pos + 4)
-      zero_idx <- (nchar(seq) - 4)
-      seq_split <- str_extract_all(seq, stringr::boundary('character'))[[1]]
-      indices <- seq(-(nchar(seq) - 5), 4, 1)
+  }
+  
+  sequences_list <- lapply(1:nrow(md), function(i) {
+    seq <- sequences$Sequence[which(sequences$query == md$Uniprot[i])]
+    pos <- md$Pos[i]
+    get_modified_sequence(seq, pos)
+  })
+  
+  valid_indices <- which(!sapply(sequences_list, is.null))
+  sequences_list <- sequences_list[valid_indices]
+  md_filtered <- md[valid_indices,]
+  
+  get_scores_log2 <- function(seq_info, kinase_data) {
+    seq <- seq_info$seq
+    zero_idx <- seq_info$zero_idx
+    seq_split <- str_extract_all(seq, stringr::boundary('character'))[[1]]
+    indices <- if (zero_idx == 6) {
+      seq(-5, length(seq_split) - 6, 1)
     } else {
-      # weird short sequence -> skip it
-      return(NULL) # use 'next' when debugging
+      seq(-(length(seq_split) - 5), 4, 1)
     }
-
-    # log2 of scaled product of matching columns in PSSM matrix to sequence
+    
     aa <- paste0(indices, seq_split)[-zero_idx]
     scores_log2 <- log2(apply(kinase_data$kinase_motifs[, ..aa], 1, prod) / kinase_data$kinase_scaling_factors)
-    
-    # compute percentile scores
     names(scores_log2) <- kinases
-    percentile_scores <- sapply(names(kinase_data$kinase_aprior_distributions), function(x) { kinase_data$kinase_aprior_distributions[[x]](scores_log2[[x]]) })
-    
-    # append new rows to dataframe
+    scores_log2
+  }
+  
+  scores_log2_list <- lapply(sequences_list, get_scores_log2, kinase_data = kinase_data)
+  
+  percentile_scores_list <- lapply(scores_log2_list, function(scores_log2) {
+    sapply(names(kinase_data$kinase_aprior_distributions), function(x) { 
+      kinase_data$kinase_aprior_distributions[[x]](scores_log2[[x]]) 
+    })
+  })
+  
+  construct_final_dataframe <- function(i, scores_log2, percentile_scores) {
     percentile_scores <- percentile_scores[order(-percentile_scores)]
-    
-    edges_threshold <- min(percentile_rank_threshold, length(which(percentile_scores >= alpha)))
-    # Check if any edge satisfies the thresholds
-    if(edges_threshold == 0) {
+    edges_threshold <- min(n, length(which(percentile_scores >= alpha)))
+    if (edges_threshold == 0) {
       return(NULL)
     }
     
+    seq_info <- sequences_list[[i]]
     new_rows <- data.frame(
       Source = names(percentile_scores)[1:edges_threshold], 
-      Target = rep(target, edges_threshold), 
-      Target_LeadingProtein = rep(row_i$LeadingProtein, edges_threshold),
-      ModifiedSequence = rep(seq, edges_threshold), 
+      Target = rep(md_filtered$Protein[i], edges_threshold), 
+      Target_Uniprot = rep(md_filtered$Uniprot[i], edges_threshold),
+      ModifiedSequence = rep(seq_info$seq, edges_threshold), 
       log2Score = scores_log2[names(percentile_scores)[1:edges_threshold]], 
       percentileScore = percentile_scores[1:edges_threshold], 
-      percentileRank = seq(1,edges_threshold,1), 
-      log2FC = rep(row_i$log2FC, edges_threshold)
+      percentileRank = seq(1, edges_threshold, 1), 
+      f = rep(md_filtered$f[i], edges_threshold)
     )
-    new_rows
+    return(new_rows)
   }
+  
+  result_list <- mapply(construct_final_dataframe, 
+                        i = seq_along(scores_log2_list), 
+                        scores_log2 = scores_log2_list, 
+                        percentile_scores = percentile_scores_list, 
+                        SIMPLIFY = FALSE)
+  
+  result_list <- result_list[which(!sapply(result_list, is.null))]
+  baseline_KIN <- rbindlist(result_list)
+ 
+  baseline_KIN_KS_edges <- baseline_KIN
+  baseline_KIN_KS_edges$Type = 'KS'
+  SK_edges <- tibble(
+    Source =  unique(baseline_KIN_KS_edges$Target[which(baseline_KIN_KS_edges$Target_Uniprot %in% kinase_data$kinase_name_mappings$`ACC#`)]),
+    Target = sapply(strsplit(Source, '_'), function(x) { x[1] }),
+    Target_Uniprot = Target,
+    ModifiedSequence = '',
+    log2Score = 0,
+    percentileScore = 0,
+    percentileRank = 0,
+    f = 0,
+    Type = 'SK'
+  )
+  
+  write_tsv(
+    rbind(baseline_KIN_KS_edges, SK_edges),
+    paste0(output.path, '/baseline_KIN/', output.id, '.tsv')
+    )
 
-  # write the substrate scoring file to the results path
-  fwrite(sub_scores, paste0(output.path, '/substrate_scores/', output_filename, '.tsv'), sep = '\t')
-
-  # stop the parallel cluster
-  stopCluster(cl)
-
-  return(sub_scores)
-
+  return(baseline_KIN)
 }
 
 
@@ -206,7 +215,7 @@ substrate_scoring <- function(
 #' @param intensities A data frame containing intensities.
 #' @param sub_scores A data frame containing substrate scores.
 #' @param output.path Path to the directory where the output file will be saved.
-#' @param output_filename Name of the output file.
+#' @param output.id Name of the output file.
 #' @param gamma Threshold for log2 fold change.
 #' @param kinase_data Kinase information loaded by the function load_kinase_data()
 #' @return A data frame containing the results of the kinase enrichment analysis.
@@ -214,23 +223,23 @@ substrate_scoring <- function(
 #' # Example usage
 #' kinase_enrichment(intensities_df, substrate_scores_df, "./output/", "cond1_vs_cond2.tsv", 1.0)
 kinase_enrichment <- function(
-    intensities, sub_scores, output.path, 
-    output_filename, kinase_data, gamma = 1.0) {
+    md, baseline_KIN, output.path, output.id, kinase_data, gamma = 1.0) {
   
   kinases <- kinase_data$kinase_name_mappings$`ACC#`
   # creating output directory for enrichments
   dir.create(paste0(output.path, '/enrichments/'), recursive = TRUE)
+  
   # Upregulated set := Phosphosites with log2FC > gamma
   # Downregulated set := Phosphosites with log2FC < - (gamma)
   # Background set := Phosphosites with -(gamma) <= log2FC <= gamma
-  upregulated_intensities <- intensities[which(intensities$log2FC > gamma),]
-  downregulated_intensities <- intensities[which(intensities$log2FC < gamma),]
-  background_intensities <- intensities[which(abs(intensities$log2FC) <= gamma),]
+  upregulated_phosphorylationSites <- md[which(md$f > gamma),]
+  downregulated_phosphorylationSites <- md[which(md$f < gamma),]
+  background_phosphorylationSites <- md[which(abs(md$f) <= gamma),]
 
   # Getting all interactions in each set 
-  upregulated_interactions <- sub_scores[which(sub_scores$Target %in% upregulated_intensities$Protein),]
-  downregulated_interactions <- sub_scores[which(sub_scores$Target %in% downregulated_intensities$Protein),]
-  background_interactions <- sub_scores[which(sub_scores$Target %in% background_intensities$Protein),]
+  upregulated_interactions <- baseline_KIN[which(baseline_KIN$Target %in% upregulated_phosphorylationSites$Protein),]
+  downregulated_interactions <- baseline_KIN[which(baseline_KIN$Target %in% downregulated_phosphorylationSites$Protein),]
+  background_interactions <- baseline_KIN[which(baseline_KIN$Target %in% background_phosphorylationSites$Protein),]
 
   # Counting the occurrences of each kinase in the three sets with 
   up_counts <- data.frame(table(upregulated_interactions$Source))
@@ -250,9 +259,9 @@ kinase_enrichment <- function(
   dominant_p_value <- c()
   dominant_directions <- c()
 
-  up_set_size <- nrow(upregulated_intensities)
-  down_set_size <- nrow(downregulated_intensities)
-  background_set_size <- nrow(background_intensities)
+  up_set_size <- nrow(upregulated_interactions)
+  down_set_size <- nrow(downregulated_interactions)
+  background_set_size <- nrow(background_interactions)
   for (i in 1:nrow(up_counts)) {
 
     up_hits <- up_counts$Freq[i]
@@ -328,7 +337,7 @@ kinase_enrichment <- function(
                       dominant_direction = dominant_directions
                     )
 
-  fwrite(result, paste0(output.path, '/enrichments/', output_filename, '.tsv'), sep = '\t')
+  write_tsv(result, paste0(output.path, '/enrichments/', output.id, '.tsv'))
   return(result)
 }
 
@@ -344,12 +353,12 @@ kinase_enrichment <- function(
 #' @examples
 #' # Example usage
 #' functional_scoring(intensities_df, "./output/")
-functional_scoring <- function(intensities, output.path) {
-
+compute_FS_filter <- function(md, output.path, output.id) {
+  
   data_targets <- data.frame(
-    acc=intensities$LeadingProtein,
-    position=intensities$Pos,
-    residue=intensities$AA
+    acc=md$Uniprot,
+    position=md$Pos,
+    residue=md$AA
   )
   
   merged_phosphoproteome <- unique(rbind(data_targets, phosphoproteome))
@@ -375,11 +384,10 @@ functional_scoring <- function(intensities, output.path) {
   all_scores <- bind_rows(ST_scores, Y_scores) %>%
     mutate(probabilities = log_scaling(probabilities))
   
-  fwrite(all_scores, paste0(output.path, '/functionalScores.tsv'), sep='\t')
+  write_tsv(all_scores, paste0(output.path, '/', output.id, '_FSscores.tsv'))
   
   return(all_scores)
 }
-
 
 
 #' Perform correlation scoring
@@ -391,204 +399,135 @@ functional_scoring <- function(intensities, output.path) {
 #' @param sub_scores A data frame containing substrate scores.
 #' @param condition Condition in intensity dataframe that is being used for correlation scoring
 #' @param output.path Path to the directory where the output file will be saved.
-#' @param output_filename Name of the output file.
+#' @param output.id Name of the output file.
+#' @param output.condition Condition that is being currently scored
 #' @param m Threshold for the number of samples needed for correlation calculation (default: 10).
-#' @return A data frame containing the correlation scores.
-#' @examples
-#' # Example usage
-#' correlation_scoring(intensities_df, substrate_scores_df, "./output/", "correlation_scores.csv", 10)
-correlation_scoring <- function(
-  intensities, sub_scores, condition, 
-  output.path, m = 10) {
+#' @param delta Threshold for correlation coefficient
+#' @param epsilon Threshold for significance of correlation test
+#' @return Edge list E_CORR
+compute_CORR_filter <- function(
+  x, md, baseline_KIN, output.path, output.id, kinase_data, m = 10, delta = 0.8, epsilon = 0.05) {
   
   dir.create(paste0(output.path, '/correlation_networks/'), recursive = TRUE)
-  intensities <- intensities[which(intensities$Condition == condition),]
+  
+  indices <- unname(which((ncol(x) - rowSums(is.na(x))) >= m))
+  x <- x[indices, ]
+  md <- md[indices, ]
+  
+  # filter out all downstream interactions that have lower than m intensity measurements
+  baseline_KIN <- baseline_KIN[which(baseline_KIN$Target %in% md$Protein),]
 
-  start <- Sys.time()
   # only keeping the edges that have an intensity measure on the source (the inferred network from the substrate scoring is kinase -> PhosphoSite not PhosphoSite -> PhosphoSite)
-  sub_scores <- sub_scores[sub_scores$Source %in% intensities$LeadingProtein, ]
+  baseline_KIN <- baseline_KIN[baseline_KIN$Source %in% md$Uniprot, ]
   
-  cores <- detectCores()
-  cores <- min(9, cores[1])
-  cl <- makeCluster(cores-1) #not to overload your computer
-  registerDoParallel(cl)
+  keep_edge <- rep(F, nrow(baseline_KIN))
   
-  # Computing correlation score and differential correlation score
-  correlation_network = foreach(i=1:nrow(sub_scores), .combine = rbind, .packages = c('data.table', 'stringr', 'dplyr')) %dopar% {
-    df <- data.frame()
-    row <- sub_scores[i, ]
-    target <- row$Target
-    source <- row$Source
-    
-    target_intensities <- intensities[which(intensities$Protein == sub_scores[i, ]$Target), ]
-    target_subjects <- target_intensities$Subject
-    
-    sources <- unique(intensities[which(intensities$LeadingProtein == source),]$Protein)
-    for (j in seq_len(length(sources))) {
-      
-      source_intensities <- intensities[which(intensities$Protein == sources[j]), ] 
-      source_subjects <- source_intensities$Subject
-      
-      subjects_measured_in_both <- intersect(source_subjects, target_subjects)
-      
-      if (length(subjects_measured_in_both) >= m) {
-        
-        x <- source_intensities[which(source_subjects %in% subjects_measured_in_both),]
-        y <- target_intensities[which(target_subjects %in% subjects_measured_in_both),]
-        
-        x <- x[order(x$Subject),]$LogIntensity
-        y <- y[order(y$Subject),]$LogIntensity
-        
-        data <- data.frame(x = x, y = y)
-        correlation_test <- cor.test(data$x, data$y, method = "pearson")
-        if (!is.na(correlation_test[["p.value"]]) && correlation_test[["p.value"]] <= 0.05) {
-          corCoef <- unname(correlation_test[['estimate']])
-          new_rows <- data.frame(
-            Source = sources[j],
-            Target = target,
-            Target_LeadingProtein = row$Target_LeadingProtein,
-            log2Score = row$log2Score,
-            percentileScore = row$percentileScore,
-            percentileRank = row$percentileRank,
-            log2FC = row$log2FC,
-            corCoef = corCoef
-          )
-          
-          df <- rbind(df, new_rows)
+  for (kinase in unique(baseline_KIN$Source)) {
+    edge_indices <- which(baseline_KIN$Source == kinase)
+    kinase_phosphorylationSites <- unique(baseline_KIN$Target[which(baseline_KIN$Target_Uniprot == kinase)])
+    for (index in edge_indices) {
+      target <- baseline_KIN$Target[index]
+      for (source in kinase_phosphorylationSites) {
+        corr_test <- cor.test(unlist(x[which(rownames(x) == source),]), unlist(x[which(rownames(x) == target),]))
+        if (corr_test$p.value <= epsilon & abs(corr_test$estimate) >= delta) {
+          keep_edge[index] <- T
+          break
         }
-      } 
+      }
     }
-    df
   }
   
-  stopCluster(cl)
+  corr_KIN <- baseline_KIN[keep_edge,]
+  non_targeted_kinases <- unique(baseline_KIN$Source[which(!(baseline_KIN$Source %in% baseline_KIN$Target_Uniprot))])
   
-  end <- Sys.time()
+  corr_KIN <- rbind(corr_KIN, baseline_KIN[which(baseline_KIN$Source %in% non_targeted_kinases),])
   
-
-  fwrite(correlation_network, paste0(output.path, '/correlation_networks/', condition, '.tsv'), sep = "\t")
-  message(paste0('Finished correlation scoring for ', condition, ' Time: ', end - start))
+  corr_KIN_KS_edges <- baseline_KIN
+  corr_KIN_KS_edges$Type = 'KS'
+  SK_edges <- tibble(
+    Source =  unique(corr_KIN_KS_edges$Target[which(corr_KIN_KS_edges$Target_Uniprot %in% kinase_data$kinase_name_mappings$`ACC#`)]),
+    Target = sapply(strsplit(Source, '_'), function(x) { x[1] }),
+    Target_Uniprot = Target,
+    ModifiedSequence = '',
+    log2Score = 0,
+    percentileScore = 0,
+    percentileRank = 0,
+    f = 0,
+    FS = 0,
+    Type = 'SK'
+  )
   
-}
-
-#' Get intensities for pairwise comparison of conditions
-#' 
-#' This function takes a data frame of intensities and two condition labels (c1 and c2) and
-#' returns the intensities corresponding to these two conditions for pairwise comparison with log2FC = c1$logIntensity - c2$logIntensity.
-#' 
-#' @param intensities A data frame containing intensities.
-#' @param disease_condition Label for the disease condition.
-#' @param control_condition Label for the control condition.
-#' @return A list containing the intensities for the two conditions.
-#' @examples
-#' # Example usage
-#' get_intensities_for_pairwise_comparison(intensities_df, "condition1", "condition2")
-get_intensities_for_pairwise_comparison <- function(intensities, disease_condition, control_condition) {
-
-  # only keeping entries for conditions c1 and c2
-  intensities_conditions <- intensities[which(intensities$Condition %in% c(disease_condition, control_condition)),]
+  write_tsv(
+    rbind(corr_KIN_KS_edges, SK_edges),
+    paste0(output.path, '/correlation_networks/', output.id, '.tsv')
+  )
+  #write_tsv(corr_KIN, paste0(output.path, '/correlation_networks/', output.id, '.tsv'))
   
-  # Computing mean log intensities for condition c1 and c2
-  intensities_diseaseCondition <- intensities_conditions[intensities_conditions$Condition == disease_condition,] %>%
-    dplyr::group_by(Protein, ProteinPhoSite, LeadingProtein, AA, Pos) %>%
-    dplyr::summarise(MeanLogIntensity = mean(LogIntensity, na.rm = 'TRUE')) %>%
-    as.data.frame()
-
-  intensities_controlCondition <- intensities_conditions[intensities_conditions$Condition == control_condition,] %>%
-    dplyr::group_by(Protein, ProteinPhoSite, LeadingProtein, AA, Pos) %>%
-    dplyr::summarise(MeanLogIntensity = mean(LogIntensity, na.rm = 'TRUE'), .groups = 'keep') %>%
-    as.data.frame()
-
-  # Can only compute log2FC between phospho sites that are measured in both conditions
-  proteins_intersection <- intersect(intensities_diseaseCondition$Protein, intensities_controlCondition$Protein)
-  intensities_diseaseCondition <- intensities_diseaseCondition[which(intensities_diseaseCondition$Protein %in% proteins_intersection),]
-  intensities_controlCondition <- intensities_controlCondition[which(intensities_controlCondition$Protein %in% proteins_intersection),]
-
-  # Sort them by ProteinPhoSite (remove any missmatches)
-  intensities_diseaseCondition <- intensities_diseaseCondition[order(intensities_diseaseCondition$Protein), ]
-  intensities_controlCondition <- intensities_controlCondition[order(intensities_controlCondition$Protein), ]
-
-  # Compute mean log2FC
-  intensities_diseaseCondition$log2FC <- intensities_diseaseCondition$MeanLogIntensity - intensities_controlCondition$MeanLogIntensity
-
-  intensities_diseaseCondition <- intensities_diseaseCondition[!is.infinite(intensities_diseaseCondition$log2FC),]
-
-  return(intensities_diseaseCondition)
+  return(rbind(corr_KIN_KS_edges, SK_edges))
 }
 
 #' Run the PCST algorithm on the given baseline KIN
 #' 
 #' @param sub_scores Baseline KIN data frame
 #' @param output.path Path to the directory where the output file will be saved.
-#' @param output_filename file name of the given network
+#' @param output.id file name of the given network
 #' @param functional_scores Computed functional scores if they were calculated (default: None)
 #' @param beta FS filter threshold (default: 0.4)
 #' @param gamma DIFF filter threshold (default: 1.0)
 #' @return A data frame containing the correlation scores.
 #' @examples
-#' # Example usage
-#' run_pipeline(sub_scores, "./output/", output_filename)
-run_PCST <- function(sub_scores, output.path, output_filename, kinase_data, functional_scores, beta = 0.4, gamma = 1.0) {
+run_PCST <- function(
+    baseline_KIN, DIFF_net, FS_net, DIFFandFS_net, output.path, output.id, kinase_data, gamma = 1.0) {
   
   # Helper function to compute PCST
-  compute_PCST <- function(sub_score_net, file_name) {
+  compute_PCST <- function(KIN, combination) {
     ## Preperation of dataframe for PCST
-    sub_score_net$edge_type <- 'data'
     # Adding helper edges from kinase substrates to kinases
-    connected_sub_score_net <- data.frame()
-    for (i in 1:nrow(sub_score_net)) {
-      if(sub_score_net$Target_LeadingProtein[i] %in% kinase_data$kinase_name_mappings$`ACC#`) {
-        connected_sub_score_net <- rbind(
-          connected_sub_score_net, 
-          data.frame(
-            Source = sub_score_net$Target[i], 
-            Target = sub_score_net$Target_LeadingProtein[i],
-            Target_LeadingProtein = sub_score_net$Target_LeadingProtein[i],
-            log2FC = 0,
-            edge_type = 'helper'
-          )
-        )
-      }
-    }
-
+    KIN$Type <- 'KS'
+    helper_edges <- tibble(
+      Source = unique(KIN$Target[which(KIN$Target_Uniprot %in% kinase_data$kinase_name_mappings$`ACC#`)]),
+      Target = sapply(strsplit(Source, '_'), function(x) { x[1] }),
+      Target_Uniprot = Target,
+      f = 0,
+      Type = 'SK'
+    )
+    
     # Combine data and helper edges
-    connected_sub_score_net <- rbind(sub_score_net, unique(connected_sub_score_net))
+    connected_KIN <- rbind(KIN, helper_edges)
     # reindex nodes and edges with integers
-    node_names <- unique(c(connected_sub_score_net$Source, connected_sub_score_net$Target))
+    node_names <- unique(c(connected_KIN$Source, connected_KIN$Target))
     nodes <- 0:(length(node_names)-1)
     names(nodes) <- node_names
-    connected_sub_score_net$Source_idx <- unname(sapply(connected_sub_score_net$Source, function(x) { nodes[[x]]} ))
-    connected_sub_score_net$Target_idx <- unname(sapply(connected_sub_score_net$Target, function(x) { nodes[[x]]} ))
+    connected_KIN$Source_idx <- unname(sapply(connected_KIN$Source, function(x) { nodes[[x]]} ))
+    connected_KIN$Target_idx <- unname(sapply(connected_KIN$Target, function(x) { nodes[[x]]} ))
 
     # create dir for PCST
     dir.create(paste0(output.path, '/PCST_networks/'), recursive = TRUE)
 
     # write node and edge file
-    edge_file <- paste0(output.path, '/PCST_networks/', file_name, '_connected_subscore_net.tsv')
-    node_names_file <- paste0(output.path, '/PCST_networks/', file_name, '_connected_subscore_net_nodeNames.tsv')
-    fwrite(
-      connected_sub_score_net, 
-      paste0(output.path, '/PCST_networks/', file_name, '_connected_subscore_net.tsv'),
-      sep = '\t'
+    edge_file <- paste0(output.path, '/PCST_networks/net_tmp.tsv')
+    node_names_file <- paste0(output.path, '/PCST_networks/net_nodeNames_tmp.tsv')
+    write_tsv(
+      connected_KIN, 
+      edge_file
     )
 
-    fwrite(
+    write_tsv(
       data.frame(
         name = names(nodes),
         index = unname(nodes),
-        log2FC = sapply(
+        f = sapply(
           names(nodes), 
           function(x) {
-            if (x %in% connected_sub_score_net$Target) {
-              unique(connected_sub_score_net[which(connected_sub_score_net$Target == x),]$log2FC)
+            if (x %in% connected_KIN$Target) {
+              unique(connected_KIN[which(connected_KIN$Target == x),]$f)
             } else {
               0
             }
           }
         )
       ),
-      paste0(output.path, '/PCST_networks/', file_name, '_connected_subscore_net_nodeNames.tsv'),
-      sep = '\t'
+      node_names_file
     )
 
     # Execute python script with PCST code
@@ -596,229 +535,281 @@ run_PCST <- function(sub_scores, output.path, output_filename, kinase_data, func
       paste0(
         'python -W ignore::DeprecationWarning src/python_src_scripts.py --net_file=', edge_file,
         ' --node_names_file=', node_names_file,
-        ' --output_path=', output.path, '/PCST_networks/', file_name, '_PCST_network.tsv'
+        ' --output_path=', output.path, '/PCST_networks/', output.id, '_', combination, '_net.tsv'
       )
     )
   }
   # without FS and DIFF filter
-  sub_score_net <- sub_scores[, c('Source', 'Target', 'Target_LeadingProtein', 'log2FC')]
-  compute_PCST(sub_score_net, output_filename)
-  
-  # with DIFF filter
-  sub_score_net_withDIFFFilter <- sub_score_net[which(abs(sub_score_net$log2FC) >= gamma), ]
-  compute_PCST(
-    sub_score_net_withDIFFFilter, 
-    paste0(output_filename, '_withDIFFfilter')
-  )
-  
-  if (any(!is.na(functional_scores))) {
-    # with FS filter
-    sub_score_net_withFSFilter <- sub_score_net
-    sub_score_net_withFSFilter$TargetPos <- sapply(strsplit(sub_score_net_withFSFilter$Target, '_'), function(x) { str_sub(x[[2]], 2) })
-    sub_score_net_withFSFilter$Target_w_Pos <- paste0(sub_score_net_withFSFilter$Target_LeadingProtein, '_', sub_score_net_withFSFilter$TargetPos)
-    probabilites <- functional_scores$probabilities
-    sub_score_net_withFSFilter$functionalScore <- sapply(
-      sub_score_net_withFSFilter$Target_w_Pos, function(x) {
-        probabilites[which(functional_scores$sites == x)]
-      }
-    )
-    
-    compute_PCST(
-      sub_score_net[which(sub_score_net_withFSFilter$functionalScore >= beta), ], 
-      paste0(output_filename, '_withFSfilter')
-    )
-    
-    # with DIFF and FS filter
-    compute_PCST(
-      sub_score_net[which(sub_score_net_withFSFilter$functionalScore >= beta & sub_score_net_withFSFilter$log2FC >= gamma), ], 
-      paste0(output_filename, '_withFSandDIFFfilter')
-    )
+  compute_PCST(baseline_KIN[, c('Source', 'Target', 'Target_Uniprot', 'f')], 'PCST')
+  compute_PCST(DIFF_net[, c('Source', 'Target', 'Target_Uniprot', 'f')], 'DIFFandPCST')
+  if (!is.null(FS_net) & !is.null(DIFFandFS_net)) {
+    compute_PCST(FS_net[, c('Source', 'Target', 'Target_Uniprot', 'f')], 'FSandPCST')
+    compute_PCST(DIFFandFS_net[, c('Source', 'Target', 'Target_Uniprot', 'f')], 'DIFFandFSandPCST') 
   }
-
 }
-
 
 #' Run the pipeline to get the baseline KIN, functional scores, correlation filter and the PCST 
 #' 
-#' @param intensity_path Path to intensitiy data.
-#' @param output.path Path to the directory where the output file will be saved.
-#' @param disease_condition Disease condition name
-#' @param control_condition Control condition name
-#' @param species Species name (default: HUMAN)
-#' @param compute_CORR_filter Bool variable that indicates if the CORR filter should be calculated
-#' @param m Threshold for the number of samples needed for correlation calculation (default: 10).
+#' @param x1 Path to intensity data of condition 1 (default: NA).
+#' @param x2 Path to intensity data of condition 2 (default: NA)
+#' @param f Path to log2-transformed intensities (default: NA)
+#' @param output_path Path to store the output (default: 'results')
+#' @param output_id Output identifier (default: Key)
+#' @param species Species name (default: Human)
+#' @param paired_samples Bool variable that indicates if the samples are paired. Influences the computation of the log2-transformed intensities (default: FALSE)
 #' @param alpha Threshold for the baseline KIN percentile scoring (default: 0.9).
+#' @param n Threshold for the number of edges in the baseline KIN (default: 15).
 #' @param beta Threshold for the FS filter (default: 0.4).
 #' @param gamma Threshold for the DIFF filter (default: 1.0) 
+#' @param delta Threshold for the CORR filter (default: 0.8)
+#' @param epsilon Threshold for the significance test of the CORR filter (default: 0.05)
+#' @param m Threshold for the number of samples needed for correlation calculation (default: 10).
 #' @return A data frame containing the correlation scores.
 #' @examples
 #' # Example usage
 #' run_pipeline('intensity_path', "./output/", disease_condition_NAME, control_condition_NAME)
-run_pipeline <- function(
-  intensity.path, output.path, disease_condition, control_condition, 
-  species = 'HUMAN', compute_CORR_filter = FALSE, m = 10, alpha = 0.9, beta = 0.4, gamma = 1.0) {
+run_KINference <- function(
+  x1.path = NA, x0.path = NA, f.path = NA, output.path = 'results', output.id = 'key', species = 'Human', paired_samples = F,
+  log_intensities = T, alpha = 0.9, n = 15, beta = 0.4, gamma = 1.0, delta = 0.8, epsilon = 0.05, m = 10 
+  ) {
   
-  message('Loading kinase data and preparing data.')
+  message('Loading kinase data and preparing data!')
   # load kinase data
   kinase_data <- load_kinase_data()
-
-  # define output_filename
-  output_filename <- paste0(disease_condition, '_vs_', control_condition)
-
-  # load intensities
-  intensities_unproc <- fread(intensity.path)
-  # stop if the necessary columns are not present
-  if (!all(c('Protein', 'LogIntensity', 'Condition', 'Subject') %in% colnames(intensities_unproc))) {
-    stop('Some of the columns "Protein", "LogIntensity", "Condition" or "Subject" were not found in the input file.\n These columns have to exist for downstream analysis.\n Refer to the example_run.R script or the README in the github for more information!')
+  
+  # preprocessing data
+  if (!is.na(x1.path) & !is.na(x0.path)) {
+    
+    x1 <- read_tsv(x1.path)
+    x1 <- column_to_rownames(x1, 'Protein')
+    x1 <- x1[, order(colnames(x1))]
+    
+    x0 <- read_tsv(x0.path)
+    x0 <- column_to_rownames(x0, 'Protein')
+    x0 <- x0[, order(colnames(x0))]
+    
+    if (paired_samples) {
+      # adding NAs of one matrix to the other to enforce paired samples
+      x1[which(is.na(x0), arr.ind = T)[1], which(is.na(x0), arr.ind = T)[2]]  <- NA
+      x0[which(is.na(x1), arr.ind = T)[1], which(is.na(x1), arr.ind = T)[2]]  <- NA
+    }
+    # filter out all Proteins with no measurements (only NAs in the row)
+    x1 <- x1[rowSums(is.na(x1)) != ncol(x1), ]
+    x0 <- x0[rowSums(is.na(x0)) != ncol(x0), ]
+    
+    # filter out all proteins that are only measured in one condition
+    x1 <- x1[which(rownames(x1) %in% rownames(x0)), ]
+    x0 <- x0[which(rownames(x0) %in% rownames(x1)), ]
+    
+    # Order rownames just in case
+    x1 <- x1[order(rownames(x1)),]
+    x0 <- x0[order(rownames(x0)),]
+    
+    # log2 transform if needed
+    if (!log_intensities) {
+      x1 <- log2(x1)
+      x0 <- log2(x0)
+    }
+    
+    # Creating meta data
+    md <- tibble(
+      Protein = rownames(x1),
+      Uniprot = sapply(strsplit(Protein, '_'), function(x) { x[1] }),
+      AAPos = sapply(strsplit(Protein, '_'), function(x) { x[2] }),
+      AA = sapply(strsplit(AAPos, '_'), function(x) { str_sub(x, 1, 1) }),
+      Pos = sapply(strsplit(AAPos, '_'), function(x) { as.numeric(str_sub(x, 2)) }),
+      Uniprot_Pos = paste0(Uniprot, '_', Pos)
+    )
+    
+    if (species == 'Mus Musculus') {
+      uniprot_MusMusculus <- md$Uniprot
+      md <- md$Uniprot <- orthology_translate_column(data = md, column = 'Uniprot', target_organism = 'human', source_organism = 'mouse')$Uniprot_9606
+      md$Uniprot_musMusculus <- uniprot_MusMusculus
+    }
+    
+    # remove all proteins that are not phosphorylated at serine (S) or threonine (T)
+    ind_to_keep <- which(md$AA %in% c('S', 'T'))
+    x1 <- x1[ind_to_keep, ]
+    x0 <- x0[ind_to_keep, ]
+    md <- md[ind_to_keep, ]
+    
+    # compute log2FC
+    if (!paired_samples) {
+      md$f <- rowMeans(x1, na.rm = T) - rowMeans(x0, na.rm = T)
+    } else {
+      md$f <- rowMeans(x1 - x0, na.rm = T)
+    }
+  } else if(!is.na(f.path)) {
+    f <- read_tsv(f.path)
+    f <- column_to_rownames(f, 'Protein')
+    
+    md <- tibble(
+      Protein = rownames(f),
+      Uniprot = sapply(strsplit(Protein, '_'), function(x) { x[1] }),
+      AAPos = sapply(strsplit(Protein, '_'), function(x) { x[2] }),
+      AA = sapply(strsplit(AAPos, '_'), function(x) { str_sub(x, 1, 1) }),
+      Pos = sapply(strsplit(AAPos, '_'), function(x) { as.numeric(str_sub(x, 2)) }),
+      Uniprot_Pos = paste0(Uniprot, '_', Pos),
+      f = f[[1]]
+    )
+  } else{
+    stop('X1 and X0 or f have to be given!')
   }
+  
+  message('Inferring baseline KIN!')
+  baseline_KIN <- infer_baseline_KIN(
+    md, 
+    output.path, 
+    output.id, 
+    kinase_data
+    )
 
-  # add convenience columns to the intensity df
-  intensities_unproc$ProteinPhoSite <- sapply(strsplit(intensities_unproc$Protein, ';'), function(x) { x[1] })
-  intensities_unproc$AA <- sapply(strsplit(intensities_unproc$ProteinPhoSite, '_'), function(x) { str_sub(x[2], 1, 1) })
-  intensities_unproc$Pos <- sapply(strsplit(intensities_unproc$ProteinPhoSite, '_'), function(x) { as.numeric(str_sub(x[2], 2)) })
-  intensities_unproc$LeadingProtein <- sapply(strsplit(intensities_unproc$ProteinPhoSite, '_'), function(x) { x[1] })
-
-  # get intensities for the two conditions
-  intensities <- get_intensities_for_pairwise_comparison(intensities_unproc, disease_condition, control_condition)
-
-  message('Inferring baseline KIN.')
-  # perform substrate scoring <-> Compute baseline KIN
-  sub_scores <- substrate_scoring(
-    intensities = intensities, 
-    output.path = output.path, 
-    output_filename = output_filename, 
-    kinase_data =  kinase_data,
-    alpha = alpha
-  )
-
-  message('Computing kinase enrichments (Johnson et al. 2023).')
+  message('Computing kinase enrichments (Johnson et al. 2023)!')
   # compute enriched kinases
   kinase_enrichment(
-    intensities = intensities, 
-    sub_scores = sub_scores, 
+    md = md,
+    baseline_KIN = baseline_KIN, 
     output.path = output.path, 
-    output_filename = output_filename, 
+    output.id = output.id, 
     kinase_data = kinase_data,
     gamma = gamma
-  )
+    )
 
   # Perform functional scoring (Only if species == HUMAN)
-  if (species == 'HUMAN') {
-    message('Computing functional scores.')
-    functional_scores <- functional_scoring(
-      intensities = intensities,
-      output.path = output.path
-    )
+  if (species %in% c('Human', 'Mus Musculus')) {
+    message('Computing FS!')
+    functional_scores <- compute_FS_filter(
+      md = md,
+      output.path = output.path,
+      output.id
+      )
+    
+    functional_scores <- functional_scores[which(functional_scores$sites %in% md$Uniprot_Pos),]
+    functional_scores <- functional_scores[order(functional_scores$sites), ]
+    md <- md[order(md$Uniprot_Pos),]
+    md$FS <- functional_scores$probabilities
+    md <- md[order(md$Protein),]
+    baseline_KIN$FS <- sapply(baseline_KIN$Target, function(x) { md$FS[md$Protein == x] })
   } else {
     functional_scores <- NA
   }
 
-  # Perform CORR Filter
-  if (compute_CORR_filter) {
-    message('Computing CORR.')
-    # 1) For the disease condition
-    correlation_scoring(
-      intensities = intensities_unproc,
-      sub_scores = sub_scores,
-      condition = disease_condition,
-      output.path = output.path,
-      m = m    
+  dir.create(paste0(output.path, '/node_filtered_networks/'), recursive = TRUE)
+  
+  # Adding SK edges for the outputs
+  add_SK_edges <- function(KIN) {
+    KIN$Type = 'KS'
+    KIN_SK <- tibble(
+      Source =  unique(KIN$Target[which(KIN$Target_Uniprot %in% kinase_data$kinase_name_mappings$`ACC#`)]),
+      Target = sapply(strsplit(Source, '_'), function(x) { x[1] }),
+      Target_Uniprot = Target,
+      ModifiedSequence = '',
+      log2Score = 0,
+      percentileScore = 0,
+      percentileRank = 0,
+      f = 0,
+      FS = 0,
+      Type = 'SK'
     )
-    # 2) For the control condition
-    correlation_scoring(
-      intensities = intensities_unproc,
-      sub_scores = sub_scores,
-      condition = control_condition,
-      output.path = output.path,
-      m = m    
-    )
+    return(rbind(KIN, KIN_SK))
   }
+  DIFF_net <- baseline_KIN[which(abs(baseline_KIN$f) >= gamma), ]
+  write_tsv(
+    add_SK_edges(DIFF_net),
+    paste0(output.path, '/node_filtered_networks/', output.id, '_DIFFnet.tsv')
+  )
 
-  message('Computing PCST.')
+  if (species %in% c('Human', 'Mus Musculus')) {
+    FS_net <- baseline_KIN[which(baseline_KIN$Target %in% md$Protein[md$FS >= beta]), ]  
+    DIFFandFS_net <- baseline_KIN[
+      which(abs(baseline_KIN$f) >= gamma & baseline_KIN$Target %in% md$Protein[md$FS >= beta]),
+    ]
+    write_tsv(
+      add_SK_edges(FS_net),
+      paste0(output.path, '/node_filtered_networks/', output.id, '_FSnet.tsv')
+    )
+    write_tsv(
+      add_SK_edges(DIFFandFS_net),
+      paste0(output.path, '/node_filtered_networks/', output.id, '_DIFFandFSnet.tsv')
+    )
+  } else {
+    FS_net <- NULL
+    DIFFandFS_net <- NULL
+  }
+  
+  # Perform CORR Filter
+  if (!is.na(x1.path) & !is.na(x0.path)) {
+    if (ncol(x1) >= m & ncol(x0) >= m) {
+      message('Computing CORR!')
+      # 1) For condition X1
+      corr_x1 <- compute_CORR_filter(
+        x = x1,
+        md = md,
+        baseline_KIN = baseline_KIN,
+        output.path = output.path,
+        output.id = paste0(output.id, '_X1'),
+        kinase_data,
+        delta = delta,
+        epsilon = epsilon,
+        m = m  
+      )
+      corr_x1_DIFF_net <- corr_x1[which(paste0(corr_x1$Source, '_', corr_x1$Target) %in% paste0(DIFF_net$Source, '_', DIFF_net$Target)),]
+      corr_x1_FS_net <- corr_x1[which(paste0(corr_x1$Source, '_', corr_x1$Target) %in% paste0(FS_net$Source, '_', FS_net$Target)),] 
+      corr_x1_DIFFandFS_net <- corr_x1[which(paste0(corr_x1$Source, '_', corr_x1$Target) %in% paste0(DIFFandFS_net$Source, '_', DIFFandFS_net$Target)),] 
+      write_tsv(
+        add_SK_edges(corr_x1_DIFF_net),
+        paste0(output.path, '/correlation_networks/', output.id, '_X1_DIFFnet.tsv')
+      )
+      write_tsv(
+        add_SK_edges(corr_x1_FS_net),
+        paste0(output.path, '/correlation_networks/', output.id, '_X1_FSnet.tsv')
+      )
+      write_tsv(
+        add_SK_edges(corr_x1_DIFFandFS_net),
+        paste0(output.path, '/correlation_networks/', output.id, '_X1_DIFFandFSnet.tsv')
+      )
+      
+      # 2) For condition X0
+      corr_x0 <- compute_CORR_filter(
+        x = x0,
+        md = md,
+        baseline_KIN = baseline_KIN,
+        output.path = output.path,
+        output.id = paste0(output.id, '_X0'),
+        kinase_data,
+        delta = delta,
+        epsilon = epsilon,
+        m = m    
+      )
+      corr_x0_DIFF_net <- corr_x0[which(paste0(corr_x0$Source, '_', corr_x0$Target) %in% paste0(DIFF_net$Source, '_', DIFF_net$Target)),]
+      corr_x0_FS_net <- corr_x0[which(paste0(corr_x0$Source, '_', corr_x0$Target) %in% paste0(FS_net$Source, '_', FS_net$Target)),] 
+      corr_x0_DIFFandFS_net <- corr_x0[which(paste0(corr_x0$Source, '_', corr_x0$Target) %in% paste0(DIFFandFS_net$Source, '_', DIFFandFS_net$Target)),]
+      write_tsv(
+        add_SK_edges(corr_x0_DIFF_net),
+        paste0(output.path, '/correlation_networks/', output.id, '_X0_DIFFnet.tsv')
+      )
+      write_tsv(
+        add_SK_edges(corr_x0_FS_net),
+        paste0(output.path, '/correlation_networks/', output.id, '_X0_FSnet.tsv')
+      )
+      write_tsv(
+        add_SK_edges(corr_x0_DIFFandFS_net),
+        paste0(output.path, '/correlation_networks/', output.id, '_X0_DIFFandFSnet.tsv')
+      )
+    }
+  }
+  
+  message('Computing PCST!')
   # Run PCST
   run_PCST(
-    sub_scores = sub_scores, 
+    baseline_KIN = baseline_KIN,
+    DIFF_net = DIFF_net,
+    FS_net = FS_net,
+    DIFFandFS_net = DIFFandFS_net,
     output.path = output.path,
-    output_filename = output_filename,
+    output.id = output.id,
     kinase_data = kinase_data,
-    functional_scores = functional_scores,
-    beta = beta,
     gamma = gamma
   ) 
   
-}
-
-run_pipeline_withGivenLog2FC <- function(
-    intensity.path, output.path, disease_condition, control_condition = 'Mock', 
-    species = 'HUMAN', m = 10, alpha = 0.9, beta = 0.4, gamma = 1.0) {
-
-  message('Loading kinase data and preparing data.')
-  # load kinase data
-  kinase_data <- load_kinase_data()
-  
-  # define output_filename
-  output_filename <- paste0(disease_condition, '_vs_', control_condition)
-  
-  # load intensities
-  intensities <- fread(intensity.path)
-  # stop if the necessary columns are not present
-  if (!all(c('Protein', disease_condition) %in% colnames(intensities))) {
-    stop(paste0('One of the columns "Protein" or ', disease_condition, ' were not found in the input file.\n These columns have to exist for downstream analysis.\n Refer to the example_run.R script or the README in the github for more information!'))
-  }  
-  intensities <- intensities[, .SD, .SDcols = c('Protein', disease_condition)]
-  colnames(intensities) <- c('Protein', 'log2FC')
-  
-  # add convenience columns to the intensity df
-  intensities$ProteinPhoSite <- sapply(strsplit(intensities$Protein, ';'), function(x) { x[1] })
-  intensities$AA <- sapply(strsplit(intensities$ProteinPhoSite, '_'), function(x) { str_sub(x[2], 1, 1) })
-  intensities$Pos <- sapply(strsplit(intensities$ProteinPhoSite, '_'), function(x) { as.numeric(str_sub(x[2], 2)) })
-  intensities$LeadingProtein <- sapply(strsplit(intensities$ProteinPhoSite, '_'), function(x) { x[1] })
-  
-  message('Inferring baseline KIN.')
-  # perform substrate scoring <-> Compute baseline KIN
-  sub_scores <- substrate_scoring(
-    intensities = intensities, 
-    output.path = output.path, 
-    output_filename = output_filename, 
-    kinase_data =  kinase_data,
-    alpha = alpha
-  )
-  
-  message('Computing kinase enrichments (Johnson et al. 2023).')
-  # compute enriched kinases
-  kinase_enrichment(
-    intensities = intensities, 
-    sub_scores = sub_scores, 
-    output.path = output.path, 
-    output_filename = output_filename, 
-    kinase_data = kinase_data,
-    gamma = gamma
-  )
-  
-
-  # Perform functional scoring (Only if species == HUMAN)
-  if (species == 'HUMAN') {
-    message('Computing functional scores.')
-    functional_scores <- functional_scoring(
-      intensities = intensities,
-      output.path = output.path
-    )
-  } else {
-    functional_scores <- NA
-  }
-  
-  # Skipping CORR as there are no sample specific log intensity measurements
-  
-  message('Computing PCST.')
-  # Run PCST
-  run_PCST(
-    sub_scores = sub_scores, 
-    output.path = output.path,
-    output_filename = output_filename,
-    kinase_data = kinase_data,
-    functional_scores = functional_scores,
-    beta = beta,
-    gamma = gamma
-  )
-
 }

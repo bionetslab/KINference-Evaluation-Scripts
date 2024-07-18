@@ -1,13 +1,25 @@
+source('./src/r_src_scripts.R')
+
 pars <- list(
-  intensity.path = './data/Wilkes2015/intensity_measurements.tsv',
+  f.path = './data/Wilkes2015/intensities_log2fcTransformedVector.tsv',
   output.path = './results/Wilkes2015/',
-  disease_condition = 'MCF7-G2'
+  output.id = 'MCF7G2_vs_Mock',
+  species = 'Human',
+  # all default values except for m = 9
+  log_intensities = F,
+  alpha = 0.9, 
+  n = 15,
+  beta = 0.4,
+  gamma = 1.0
 )
 
-source('./src/r_src_scripts.R')
-run_pipeline_withGivenLog2FC(
-  intensity.path = pars$intensity.path,
+run_KINference(
+  f.path = pars$f.path,
   output.path = pars$output.path,
-  disease_condition = pars$disease_condition,
-  gamma = 1.5
+  output.id = pars$output.id,
+  species = pars$species,
+  alpha = pars$alpha,
+  n = pars$n,
+  beta = pars$beta,
+  gamma = pars$gamma
 )

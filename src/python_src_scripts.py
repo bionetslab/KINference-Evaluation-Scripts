@@ -17,7 +17,7 @@ edges_df = pd.read_csv(args.net_file, sep = '\t')
 nodes_df = pd.read_csv(args.node_names_file, sep = '\t')
 
 e = edges_df[['Source_idx', 'Target_idx']]
-node_prizes = np.absolute(nodes_df['log2FC']).to_numpy()
+node_prizes = np.absolute(nodes_df['f']).to_numpy()
 
 # defining pcst algorithm parameters
 root = -1
