@@ -2,7 +2,7 @@
 
 This repository contains all the necessary code for the evaluation of KINference: Data-driven inference of kinase interaction networks.
 
-<img src="README_files/imgs/overview.png" style="display: block" />
+<img src="README_files/imgs/workflow.png" style="display: block" />
 
 ## Installation instruction
 
