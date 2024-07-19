@@ -1,5 +1,9 @@
 # KINference-Evaluation-Scripts
 
+This repository contains all the necessary code for the evaluation of KINference: Data-driven inference of kinase interaction networks.
+
+<img src="README_files/imgs/overview.png" style="display: block" />
+
 ## Installation instruction
 
 1) Create a conda environment (mamba is recommended):
