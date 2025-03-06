@@ -6,20 +6,9 @@ This repository contains all the necessary code for the evaluation of KINference
 
 ## Installation instruction
 
-1) Create a conda environment (mamba is recommended):
-```
-mamba create -n 'KINference' -c conda-forge r-base python
-mamba activate KINference
-```
-2) Install `pcst_fast`
-```
-pip install pcst_fast
-```
-3) Install required R packages (in an R terminal):
-```
-install.packages(c('tidyverse', 'data.table', 'BiocManager', 'devtools', 'argparse'))
-devtools::install_github("evocellnet/funscoR")
-BiocManager::install(c('OmnipathR', 'UniProt.ws'))
+Install with:
+```R
+devtools::install_github('bionetslab/KINference')
 ```
 
 ## Run the code for result generation:
@@ -32,3 +21,13 @@ Rscript Wilkes2015_run.R
 ```
 Rscript Bouhaddou2023_run.R
 ```
+
+## Run the hyperparameter evaluation:
+Warning: This takes a long time!
+```
+Rscript run_Hyperparameter_evaluation.R
+```
+
+## Recreation of analysis and figures
+1) All scripts to recreate the results can be found in the folder `manuscript_scripts`
+2) All scripts to recreate the plots can be found in the folder `plotting_scripts`
