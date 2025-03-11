@@ -53,6 +53,7 @@ for (g in tested_gamma) {
   bouhaddou_pcst_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(pcst_DKIN)$Occurences
 }
 
+
 bouhaddou_node_literatureBias_gamma_plot <- tibble(
   Values = c(bouhaddou_baselineKIN_df$Occurences, unname(unlist(bouhaddou_node_literatureBias_gamma))),
   Group = c(rep('Baseline KIN', nrow(bouhaddou_baselineKIN_df)), rep(names(bouhaddou_node_literatureBias_gamma), lengths(bouhaddou_node_literatureBias_gamma)))
@@ -74,27 +75,25 @@ bouhaddou_pcst_literatureBias_gamma_plot$Group <- factor(
   labels = c("Baseline~KIN", paste0("gamma == ", names(bouhaddou_pcst_literatureBias_gamma)))
 )
 
-p1_gamma <- ggplot(bouhaddou_node_literatureBias_gamma_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Without PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  scale_fill_manual(
-    values = c("steelblue", "tomato", "darkgreen", "purple", "orange")  # Adjust colors if needed
-  ) +
-  theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+bouhaddou_gamma_data <- bind_rows(bouhaddou_node_literatureBias_gamma_plot %>% mutate(Type = 'Without PCST'), 
+                                  bouhaddou_pcst_literatureBias_gamma_plot %>% mutate(Type = 'With PCST')) %>%
+  mutate(Type = factor(Type, levels = c("Without PCST", "With PCST")))  # Ensure correct order
 
-p2_gamma <- ggplot(bouhaddou_pcst_literatureBias_gamma_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "With PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  scale_fill_manual(
-    values = c("steelblue", "tomato", "darkgreen", "purple", "orange")  # Adjust colors if needed
-  ) +
+bouhaddou_gamma_plot <- ggplot(bouhaddou_gamma_data, aes(x = Group, y = Values, fill = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) + 
+  labs(title = expression(paste("DIFF")),
+       x = "", y = "Number of PubMed mentions") +
+  ylim(0, 500) +
+  scale_x_discrete(labels = function(x) {parse(text = x)}) +
   theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+  theme(
+    legend.position = 'none',
+    legend.title = element_blank(), 
+    axis.text = element_text(size = 14, angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) +
+  guides(fill="none")
 
 bouhaddou_node_literatureBias_beta <- list()
 bouhaddou_pcst_literatureBias_beta <- list()
@@ -127,34 +126,31 @@ bouhaddou_pcst_literatureBias_beta_plot$Group <- factor(
   labels = c("Baseline~KIN", paste0("beta == ", names(bouhaddou_pcst_literatureBias_beta)))
 )
 
-p1_beta <- ggplot(bouhaddou_node_literatureBias_beta_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Without PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  #scale_fill_manual(
-  #  values = c("steelblue", "tomato", "darkgreen", "purple")  # Adjust colors if needed
-  #) +
-  theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+bouhaddou_beta_data <- bind_rows(bouhaddou_node_literatureBias_beta_plot %>% mutate(Type = 'Without PCST'), 
+                                 bouhaddou_pcst_literatureBias_beta_plot %>% mutate(Type = 'With PCST')) %>%
+  mutate(Type = factor(Type, levels = c("Without PCST", "With PCST")))  # Ensure correct order
 
-p2_beta <- ggplot(bouhaddou_pcst_literatureBias_beta_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "With PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  #scale_fill_manual(
-  #  values = c("steelblue", "tomato", "darkgreen", "purple")  # Adjust colors if needed
-  #) +
+bouhaddou_beta_plot <- ggplot(bouhaddou_beta_data, aes(x = Group, y = Values, fill = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) + 
+  labs(title = expression(paste("FS")),
+       x = "", y = "Number of PubMed mentions") +
+  ylim(0, 500) +
+  scale_x_discrete(labels = function(x) {parse(text = x)}) +
   theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+  theme(
+    legend.position = 'none',
+    legend.title = element_blank(), 
+    axis.text = element_text(size = 14, angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) +
+  guides(fill="none")
 
 bouhaddou_literatureBias_delta <- list()
 for (d in tested_delta) {
   DKIN <- read_tsv(paste0('../results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n10_alpha0.85_gamma0_beta0_delta', d, '_CORR_filtered_x0_KIN.tsv'))
   bouhaddou_literatureBias_delta[[as.character(d)]] <- get_pubmed_distribution(DKIN)$Occurences
 }
-
 bouhaddou_literatureBias_delta_plot <- tibble(
   Values = c(bouhaddou_baselineKIN_df$Occurences, unname(unlist(bouhaddou_literatureBias_delta))),
   Group = c(rep('Baseline KIN', nrow(bouhaddou_baselineKIN_df)), rep(names(bouhaddou_literatureBias_delta), lengths(bouhaddou_literatureBias_delta)))
@@ -167,29 +163,30 @@ bouhaddou_literatureBias_delta_plot$Group <- factor(
   labels = c("Baseline~KIN", paste0("delta == ", names(bouhaddou_literatureBias_delta)))
 )
 
-p1_delta <- ggplot(bouhaddou_literatureBias_delta_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = expression(paste("Hyperparameter evaluation: Literature bias of ", delta)), x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  scale_fill_manual(
-    values = c("steelblue", "tomato", "darkgreen", "purple", "orange")  # Adjust colors if needed
-  ) +
+bouhaddou_delta_data <- bouhaddou_literatureBias_delta_plot %>% mutate(Type = 'Without PCST') %>%
+  mutate(Type = factor(Type, levels = c("Without PCST", "With PCST")))
+
+bouhaddou_delta_plot <- ggplot(bouhaddou_delta_data, aes(x = Group, y = Values, fill = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Dodge to separate conditions slightly
+  labs(title = expression(paste("CORR")),
+       x = "", y = "Number of PubMed mentions") +
+  ylim(0, 500) +
+  # Parse x-axis labels as expressions
+  scale_x_discrete(labels = function(x) {parse(text = x)}) +
   theme_minimal() +
-  theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-  scale_fill_discrete(labels = scales::parse_format())
+  theme(
+    legend.position = 'none',
+    legend.title = element_blank(), 
+    axis.text = element_text(size = 14, angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 18, hjust = 0.5)
+  ) +
+  guides(fill="none")
 
-
-gamma_plot <- p1_gamma + 
-  p2_gamma + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = expression(paste("Hyperparameter evaluation: Literature bias of ", gamma))) &
-  theme(legend.position = "right", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm'))
-
-beta_plot <- p1_beta + 
-  p2_beta + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = expression(paste("Hyperparameter evaluation: Literature bias of ", beta))) &
-  theme(legend.position = "right", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm'))
+bouhaddou_plot <- ((bouhaddou_gamma_plot) | (bouhaddou_beta_plot) | (bouhaddou_delta_plot)) + 
+  plot_layout(axis_titles = 'collect', guides = 'collect') +
+  plot_annotation(tag_levels = list(c("A", "", "")), title = 'SARS-CoV-2') & 
+  theme(plot.tag = element_text(face = "bold"), legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5, size = 18))
 
 
 ## WILKES et al.
@@ -202,7 +199,6 @@ for (g in tested_gamma) {
   wilkes_node_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(node_DKIN)$Occurences
   wilkes_pcst_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(pcst_DKIN)$Occurences
 }
-
 wilkes_node_literatureBias_gamma_plot <- tibble(
   Values = c(wilkes_baselineKIN_df$Occurences, unname(unlist(wilkes_node_literatureBias_gamma))),
   Group = c(rep('Baseline KIN', nrow(wilkes_baselineKIN_df)), rep(names(wilkes_node_literatureBias_gamma), lengths(wilkes_node_literatureBias_gamma)))
@@ -224,27 +220,24 @@ wilkes_pcst_literatureBias_gamma_plot$Group <- factor(
   labels = c("Baseline~KIN", paste0("gamma == ", names(wilkes_pcst_literatureBias_gamma)))
 )
 
-p1_gamma <- ggplot(wilkes_node_literatureBias_gamma_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Without PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  scale_fill_manual(
-    values = c("steelblue", "tomato", "darkgreen", "purple", "orange")  # Adjust colors if needed
-  ) +
-  theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+wilkes_gamma_data <- rbind(
+  wilkes_node_literatureBias_gamma_plot %>% mutate(Type = 'Without PCST'), 
+  wilkes_pcst_literatureBias_gamma_plot %>% mutate(Type = 'With PCST')
+) %>% mutate(Type = factor(Type, levels = c('Without PCST', 'With PCST')))
 
-p2_gamma <- ggplot(wilkes_pcst_literatureBias_gamma_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "With PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  scale_fill_manual(
-    values = c("steelblue", "tomato", "darkgreen", "purple", "orange")  # Adjust colors if needed
-  ) +
+wilkes_gamma_plot <- ggplot(wilkes_gamma_data, aes(x = Group, y = Values, fill = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) + 
+  labs(title = expression(paste("DIFF")),
+       x = "", y = "Number of PubMed mentions") +
+  ylim(0, 500) +
+  scale_x_discrete(labels = function(x) {parse(text = x)}) +
   theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+  theme(
+    legend.title = element_blank(), 
+    axis.text = element_text(size = 14, angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 18, hjust = 0.5)
+  )
 
 wilkes_node_literatureBias_beta <- list()
 wilkes_pcst_literatureBias_beta <- list()
@@ -277,36 +270,26 @@ wilkes_pcst_literatureBias_beta_plot$Group <- factor(
   labels = c("Baseline~KIN", paste0("beta == ", names(wilkes_pcst_literatureBias_beta)))
 )
 
-p1_beta <- ggplot(wilkes_node_literatureBias_beta_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Without PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  #scale_fill_manual(
-  #  values = c("steelblue", "tomato", "darkgreen", "purple")  # Adjust colors if needed
-  #) +
+wilkes_beta_data <- rbind(
+  wilkes_node_literatureBias_beta_plot %>% mutate(Type = 'Without PCST'),
+  wilkes_pcst_literatureBias_beta_plot %>% mutate(Type = 'With PCST')
+) %>% mutate(Type = factor(Type, levels = c('Without PCST', 'With PCST')))
+
+wilkes_beta_plot <- ggplot(wilkes_beta_data, aes(x = Group, y = Values, fill = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) + 
+  labs(title = expression(paste("FS")),
+       x = "", y = "Number of PubMed mentions") +
+  ylim(0, 500) +
+  scale_x_discrete(labels = function(x) {parse(text = x)}) +
   theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
+  theme(
+    legend.title = element_blank(), 
+    axis.text = element_text(size = 14, angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 18, hjust = 0.5)
+  )
 
-p2_beta <- ggplot(wilkes_pcst_literatureBias_beta_plot, aes(x = Values, fill = Group)) +
-  geom_density(alpha = 0.5) +
-  labs(title = "With PCST", x = "Number of PubMed mentions", y = "Density") +
-  xlim(0, 1000) +
-  #scale_fill_manual(
-  #  values = c("steelblue", "tomato", "darkgreen", "purple")  # Adjust colors if needed
-  #) +
-  theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_discrete(labels = scales::parse_format())
-
-gamma_plot <- p1_gamma + 
-  p2_gamma + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = expression(paste("Hyperparameter evaluation: Literature bias of ", gamma))) &
-  theme(legend.position = "right", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm'))
-
-beta_plot <- p1_beta + 
-  p2_beta + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = expression(paste("Hyperparameter evaluation: Literature bias of ", beta))) &
-  theme(legend.position = "right", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm'))
+wilkes_plot <- (wilkes_gamma_plot + wilkes_beta_plot) + 
+  plot_layout(axis_titles = 'collect', guides = 'collect') +
+  plot_annotation(tag_levels = list("B"), title = 'PI3K inhibition in resistant breast cancer cell line') & 
+  theme(plot.tag = element_text(face = "bold"), legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5, size = 18))
