@@ -8,15 +8,15 @@ colors <- display.brewer.all(n = 3, colorblindFriendly = TRUE)
 
 colors <- brewer.pal(n = 3, "Dark2")
 # Bouhaddou 2023
-bouhaddou2023_baseline_KIN <- read_tsv('../results/Hyperparameters/Bouhaddou2023/baseline_KIN/Bouhaddou2023_n15_alpha0.9_KIN.tsv')
-bouhaddou2023_filtered_KIN <- read_tsv('../results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma1_beta0.4_PCST_filtered_KIN.tsv')
+bouhaddou2023_baseline_KIN <- read_tsv('./results/Hyperparameters/Bouhaddou2023/baseline_KIN/Bouhaddou2023_n15_alpha0.9_KIN.tsv')
+bouhaddou2023_filtered_KIN <- read_tsv('./results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma1_beta0.4_PCST_filtered_KIN.tsv')
 
-data <- read_tsv('../data/Bouhaddou2023/intensities_Mock10h.tsv')
+data <- read_tsv('./data/Bouhaddou2023/intensities_Mock10h.tsv')
 bg <- unique(sapply(strsplit(data$Protein, '_'), function(x) { x[1] }))
 
 kinases <- c(
-  read_tsv('../data/kinase_data/serine_threonine_kinase_name_mappings.tsv')[['ACC#']],
-  read_tsv('../data/kinase_data/tyrosine_kinase_name_mappings.tsv')[['ACC#']]
+  read_tsv('./data/kinase_data/serine_threonine_kinase_name_mappings.tsv')[['ACC#']],
+  read_tsv('./data/kinase_data/tyrosine_kinase_name_mappings.tsv')[['ACC#']]
 )
 
 query_baseline_KIN <- unique(bouhaddou2023_baseline_KIN[which((bouhaddou2023_baseline_KIN$Edge_type == 'KS') & !(bouhaddou2023_baseline_KIN$Target_Uniprot %in% kinases)),]$Target_Uniprot)
@@ -61,8 +61,8 @@ sars_cov2_plot <- ggplot() +
   guides(color = "none")
 
 # Wilkes 2015
-wilkes2015_baseline_KIN <- read_tsv('../results/Hyperparameters/Wilkes2015/baseline_KIN/Wilkes2015_n15_alpha0.9_KIN.tsv')
-wilkes2015_filtered_KIN <- read_tsv('../results/Hyperparameters/Wilkes2015/edge_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma1_beta0.4_PCST_filtered_KIN.tsv')
+wilkes2015_baseline_KIN <- read_tsv('./results/Hyperparameters/Wilkes2015/baseline_KIN/Wilkes2015_n15_alpha0.9_KIN.tsv')
+wilkes2015_filtered_KIN <- read_tsv('./results/Hyperparameters/Wilkes2015/edge_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma1_beta0.4_PCST_filtered_KIN.tsv')
 
 wilkes2015_gostres_baseline_KIN <- gost(
   query = unique(c(wilkes2015_baseline_KIN[which((wilkes2015_baseline_KIN$Edge_type == 'KS') & !(wilkes2015_baseline_KIN$Target_Uniprot %in% kinases)),]$Target_Uniprot)),
@@ -109,8 +109,8 @@ wilkes_plot <- ggplot() +
 combined_enrichment_plot <- grid.arrange(wilkes_plot, sars_cov2_plot, ncol=1)
 
 # Showing kinase enrichment leads to significant results
-serine_threonine_kinases <- read_tsv('../data/kinase_data/serine_threonine_kinases/kinase_name_mappings.tsv')
-tyrosine_kinases <- read_tsv('../data/kinase_data/tyrosine_kinases/kinase_name_mappings.tsv')
+serine_threonine_kinases <- read_tsv('./data/kinase_data/serine_threonine_kinases/kinase_name_mappings.tsv')
+tyrosine_kinases <- read_tsv('./data/kinase_data/tyrosine_kinases/kinase_name_mappings.tsv')
 gostres_kinases <- gost(
   query = c(serine_threonine_kinases$`ACC#`, tyrosine_kinases$`ACC#`),
   organism = 'hsapiens',

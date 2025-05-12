@@ -2,7 +2,7 @@ library(tidyverse)
 library(readxl)
 library(Kinference)
 # Load the data
-data <- read_excel('../data/competitors/buljan2020_interactions.xlsx', na = c('NA', ''))
+data <- read_excel('./data/competitors/buljan2020_interactions.xlsx', na = c('NA', ''))
 colnames(data) <- data[2, ]
 data <- data %>%
   filter(!row_number() %in% c(1, 2)) %>%
@@ -68,7 +68,7 @@ write_tsv(Kinference_input, './buljan2020_baselineKIN_comparison_data.tsv')
 Kinference::run_KINference(
     f.path='./buljan2020_baselineKIN_comparison_data.tsv',
     gamma=1.0,
-    output.path='../results/baselineKIN_comparisons',
+    output.path='./results/baselineKIN_comparisons',
     output.id='buljan2020_comparison',
     apply.PCST=FALSE,
     apply.FS=TRUE,

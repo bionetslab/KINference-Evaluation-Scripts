@@ -250,7 +250,7 @@ get_plots <- function(results, tested_alpha, tested_n, tested_beta, tested_gamma
 
 
 # Loading Omnipath network
-op_net <- read_csv('../data/OmniPath/2023_10_11_KinaseDataOmniPath.csv', show_col_types = F)
+op_net <- read_csv('./data/OmniPath/2023_10_11_KinaseDataOmniPath.csv', show_col_types = F)
 op_net$Interaction <- paste0(op_net$enzyme, '_', op_net$TARGET_UP_ID, '_', op_net$TARGET_RES, op_net$TARGET_POS)
 
 # Tested hyperparameters
@@ -261,7 +261,7 @@ tested_gamma <- c(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)
 tested_delta <- c(0.7, 0.8, 0.9)
 
 # Analysis for Wilkes et al. 2015
-wilkes_path <- '../results/Hyperparameters/Wilkes2015/'
+wilkes_path <- './results/Hyperparameters/Wilkes2015/'
 wilkes_filtered_KIN_results <- get_filtered_KIN_results(
   path = wilkes_path, 
   tested_alpha,
@@ -274,7 +274,7 @@ wilkes_filtered_KIN_results <- get_filtered_KIN_results(
 wilkes_filtered_KIN_results <- readRDS(paste0(wilkes_path, 'randomization_test_results.rds'))
 wilkes_plots <- get_plots(wilkes_filtered_KIN_results, tested_alpha, tested_n, tested_beta, tested_gamma, tested_delta, dataset='Wilkes2015') 
 # Analysis for Bouhaddou et al. 2023
-bouhaddou_path <- '../results/Hyperparameters/Bouhaddou2023/'
+bouhaddou_path <- './results/Hyperparameters/Bouhaddou2023/'
 bouhaddou_filtered_KIN_results <- get_filtered_KIN_results(
    path = bouhaddou_path,
    tested_alpha,

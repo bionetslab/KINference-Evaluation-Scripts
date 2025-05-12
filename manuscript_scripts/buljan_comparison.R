@@ -1,13 +1,13 @@
 library(tidyverse)
 library(readxl)
 
-omnipath_network <- read_csv('../data/OmniPath/2023_10_11_KinaseDataOmniPath.csv')
+omnipath_network <- read_csv('./data/OmniPath/2023_10_11_KinaseDataOmniPath.csv')
 omnipath_interactions <- unique(paste0(omnipath_network$enzyme, '_', omnipath_network$TARGET_UP_ID))
 # Load the data
-baseline_KIN <- read_tsv('../results/baselineKIN_comparisons/baseline_KIN/buljan2020_comparison_KIN.tsv')
+baseline_KIN <- read_tsv('./results/baselineKIN_comparisons/baseline_KIN/buljan2020_comparison_KIN.tsv')
 baseline_KIN <- baseline_KIN %>% filter(Edge_type == 'KS')
 
-data <- read_excel('../data/competitors/buljan2020_interactions.xlsx', na = c('NA', ''))
+data <- read_excel('./data/competitors/buljan2020_interactions.xlsx', na = c('NA', ''))
 colnames(data) <- data[2, ]
 data <- data %>%
   filter(!row_number() %in% c(1, 2)) %>%

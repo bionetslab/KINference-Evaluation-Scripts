@@ -11,23 +11,13 @@ Install with:
 devtools::install_github('bionetslab/KINference')
 ```
 
-## Run the code for result generation:
-Note: You have to run the code from the terminal and not inside an R terminal as the PCST calculation using the python implementatiion of pcst_fast will not work otherwise.
-- Wilkes 2015 et al. (https://doi.org/10.1073/pnas.142334411)
-```
-Rscript Wilkes2015_run.R
-```
-- Bouhaddou 2023 et al. (https://doi.org/10.1016/j.cell.2023.08.026)
-```
-Rscript Bouhaddou2023_run.R
-```
-
-## Run the hyperparameter evaluation:
-Warning: This takes a long time!
-```
-Rscript run_Hyperparameter_evaluation.R
-```
-
 ## Recreation of analysis and figures
 1) All scripts to recreate the results can be found in the folder `manuscript_scripts`
 2) All scripts to recreate the plots can be found in the folder `plotting_scripts`
+
+**NOTE:** You have to run every code from the main repo directory! For example:
+```
+Rscript manuscript_scripts/Bouhaddou_run.R
+``` 
+
+You have to download the `gene2pubmed` and `gene2ensemble` file from https://ftp.ncbi.nih.gov/gene/DATA/ for the `literaturbias_analysis.R` script.

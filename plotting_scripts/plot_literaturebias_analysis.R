@@ -2,10 +2,10 @@ library(tidyverse)
 library(ggplot2)
 library(readxl)
 
-biomart <- read_tsv('../data/biomart/mart_export_human_uniprot.txt')
+biomart <- read_tsv('./data/biomart/mart_export_human_uniprot.txt')
 
-gene2pubmed <- read_tsv('../data/gene2pubmed/gene2pubmed.tsv')
-gene2ensembl <- read_tsv('../data/gene2pubmed/gene2ensembl.tsv')
+gene2pubmed <- read_tsv('./data/gene2pubmed/gene2pubmed.tsv')
+gene2ensembl <- read_tsv('./data/gene2pubmed/gene2ensembl.tsv')
 gene2pubmed <- gene2pubmed[gene2pubmed[['#tax_id']] == 9606, ]
 gene2ensembl <- gene2ensembl[gene2ensembl[['#tax_id']] == 9606, ]
 
@@ -31,10 +31,10 @@ get_pubmed_distribution <- function(data) {
 
 
 
-bouhaddou_baselineKIN <- read_tsv('../results/Hyperparameters/Bouhaddou2023/baseline_KIN/Bouhaddou2023_n15_alpha0.9_KIN.tsv')
+bouhaddou_baselineKIN <- read_tsv('./results/Hyperparameters/Bouhaddou2023/baseline_KIN/Bouhaddou2023_n15_alpha0.9_KIN.tsv')
 bouhaddou_baselineKIN_df <- get_pubmed_distribution(bouhaddou_baselineKIN)
 
-wilkes_baseline_KIN <- read_tsv('../results/Hyperparameters/Wilkes2015/baseline_KIN/Wilkes2015_n15_alpha0.9_KIN.tsv')
+wilkes_baseline_KIN <- read_tsv('./results/Hyperparameters/Wilkes2015/baseline_KIN/Wilkes2015_n15_alpha0.9_KIN.tsv')
 wilkes_baselineKIN_df <- get_pubmed_distribution(wilkes_baseline_KIN)
 
 tested_gamma <- c(0.5, 1, 1.5, 2, 2.5)
@@ -46,8 +46,8 @@ tested_delta <- c(0.7, 0.8, 0.9)
 bouhaddou_node_literatureBias_gamma <- list()
 bouhaddou_pcst_literatureBias_gamma <- list()
 for (g in tested_gamma) {
-  node_DKIN <- read_tsv(paste0('../results/Hyperparameters/Bouhaddou2023/node_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma', g, '_beta0_KIN.tsv'))
-  pcst_DKIN <- read_tsv(paste0('../results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma', g, '_beta0_PCST_filtered_KIN.tsv'))
+  node_DKIN <- read_tsv(paste0('./results/Hyperparameters/Bouhaddou2023/node_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma', g, '_beta0_KIN.tsv'))
+  pcst_DKIN <- read_tsv(paste0('./results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma', g, '_beta0_PCST_filtered_KIN.tsv'))
   
   bouhaddou_node_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(node_DKIN)$Occurences
   bouhaddou_pcst_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(pcst_DKIN)$Occurences
@@ -98,8 +98,8 @@ bouhaddou_gamma_plot <- ggplot(bouhaddou_gamma_data, aes(x = Group, y = Values, 
 bouhaddou_node_literatureBias_beta <- list()
 bouhaddou_pcst_literatureBias_beta <- list()
 for (b in tested_beta) {
-  node_DKIN <- read_tsv(paste0('../results/Hyperparameters/Bouhaddou2023/node_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma0_beta', b, '_KIN.tsv'))
-  pcst_DKIN <- read_tsv(paste0('../results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma0_beta', b, '_PCST_filtered_KIN.tsv'))
+  node_DKIN <- read_tsv(paste0('./results/Hyperparameters/Bouhaddou2023/node_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma0_beta', b, '_KIN.tsv'))
+  pcst_DKIN <- read_tsv(paste0('./results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n15_alpha0.9_gamma0_beta', b, '_PCST_filtered_KIN.tsv'))
   
   bouhaddou_node_literatureBias_beta[[as.character(b)]] <- get_pubmed_distribution(node_DKIN)$Occurences
   bouhaddou_pcst_literatureBias_beta[[as.character(b)]] <- get_pubmed_distribution(pcst_DKIN)$Occurences
@@ -148,7 +148,7 @@ bouhaddou_beta_plot <- ggplot(bouhaddou_beta_data, aes(x = Group, y = Values, fi
 
 bouhaddou_literatureBias_delta <- list()
 for (d in tested_delta) {
-  DKIN <- read_tsv(paste0('../results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n10_alpha0.85_gamma0_beta0_delta', d, '_CORR_filtered_x0_KIN.tsv'))
+  DKIN <- read_tsv(paste0('./results/Hyperparameters/Bouhaddou2023/edge_filtered_KIN/Bouhaddou2023_n10_alpha0.85_gamma0_beta0_delta', d, '_CORR_filtered_x0_KIN.tsv'))
   bouhaddou_literatureBias_delta[[as.character(d)]] <- get_pubmed_distribution(DKIN)$Occurences
 }
 bouhaddou_literatureBias_delta_plot <- tibble(
@@ -193,8 +193,8 @@ bouhaddou_plot <- ((bouhaddou_gamma_plot) | (bouhaddou_beta_plot) | (bouhaddou_d
 wilkes_node_literatureBias_gamma <- list()
 wilkes_pcst_literatureBias_gamma <- list()
 for (g in tested_gamma) {
-  node_DKIN <- read_tsv(paste0('../results/Hyperparameters/Wilkes2015/node_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma', g, '_beta0_KIN.tsv'))
-  pcst_DKIN <- read_tsv(paste0('../results/Hyperparameters/Wilkes2015/edge_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma', g, '_beta0_PCST_filtered_KIN.tsv'))
+  node_DKIN <- read_tsv(paste0('./results/Hyperparameters/Wilkes2015/node_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma', g, '_beta0_KIN.tsv'))
+  pcst_DKIN <- read_tsv(paste0('./results/Hyperparameters/Wilkes2015/edge_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma', g, '_beta0_PCST_filtered_KIN.tsv'))
   
   wilkes_node_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(node_DKIN)$Occurences
   wilkes_pcst_literatureBias_gamma[[as.character(g)]] <- get_pubmed_distribution(pcst_DKIN)$Occurences
@@ -242,8 +242,8 @@ wilkes_gamma_plot <- ggplot(wilkes_gamma_data, aes(x = Group, y = Values, fill =
 wilkes_node_literatureBias_beta <- list()
 wilkes_pcst_literatureBias_beta <- list()
 for (b in tested_beta) {
-  node_DKIN <- read_tsv(paste0('../results/Hyperparameters/Wilkes2015/node_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma0_beta', b, '_KIN.tsv'))
-  pcst_DKIN <- read_tsv(paste0('../results/Hyperparameters/Wilkes2015/edge_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma0_beta', b, '_PCST_filtered_KIN.tsv'))
+  node_DKIN <- read_tsv(paste0('./results/Hyperparameters/Wilkes2015/node_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma0_beta', b, '_KIN.tsv'))
+  pcst_DKIN <- read_tsv(paste0('./results/Hyperparameters/Wilkes2015/edge_filtered_KIN/Wilkes2015_n15_alpha0.9_gamma0_beta', b, '_PCST_filtered_KIN.tsv'))
   
   wilkes_node_literatureBias_beta[[as.character(b)]] <- get_pubmed_distribution(node_DKIN)$Occurences
   wilkes_pcst_literatureBias_beta[[as.character(b)]] <- get_pubmed_distribution(pcst_DKIN)$Occurences
@@ -293,3 +293,44 @@ wilkes_plot <- (wilkes_gamma_plot + wilkes_beta_plot) +
   plot_layout(axis_titles = 'collect', guides = 'collect') +
   plot_annotation(tag_levels = list("B"), title = 'PI3K inhibition in resistant breast cancer cell line') & 
   theme(plot.tag = element_text(face = "bold"), legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5, size = 18))
+
+
+
+# perform correlation test:
+print('------- SARS-CoV-2: -------')
+bouhaddou_node_gamma_vals <- c(rep(0.5, length(bouhaddou_node_literatureBias_gamma$`0.5`)), rep(1.0, length(bouhaddou_node_literatureBias_gamma$`1`)), rep(1.5, length(bouhaddou_node_literatureBias_gamma$`1.5`)), rep(2.0, length(bouhaddou_node_literatureBias_gamma$`2`)), rep(2.5, length(bouhaddou_node_literatureBias_gamma$`2.5`)))
+bouhaddou_pcst_gamma_vals <- c(rep(0.5, length(bouhaddou_pcst_literatureBias_gamma$`0.5`)), rep(1.0, length(bouhaddou_pcst_literatureBias_gamma$`1`)), rep(1.5, length(bouhaddou_pcst_literatureBias_gamma$`1.5`)), rep(2.0, length(bouhaddou_pcst_literatureBias_gamma$`2`)), rep(2.5, length(bouhaddou_pcst_literatureBias_gamma$`2.5`)))
+bouhaddou_node_beta_vals <- c(rep(1, length(bouhaddou_node_literatureBias_beta$`0.2`)), rep(2, length(bouhaddou_node_literatureBias_beta$`0.4`)), rep(3, length(bouhaddou_node_literatureBias_beta$`0.6`)))
+bouhaddou_pcst_beta_vals <- c(rep(1, length(bouhaddou_pcst_literatureBias_beta$`0.2`)), rep(2, length(bouhaddou_pcst_literatureBias_beta$`0.4`)), rep(3, length(bouhaddou_pcst_literatureBias_beta$`0.6`)))
+bouhaddou_node_delta_vals <- c(rep(0.7, length(bouhaddou_literatureBias_delta$`0.7`)), rep(0.8, length(bouhaddou_literatureBias_delta$`0.8`)), rep(0.9, length(bouhaddou_literatureBias_delta$`0.9`)))
+print('------- Without PCST: -------')
+print('------- Gamma: -------')
+cor.test(bouhaddou_node_gamma_vals, unname(unlist(bouhaddou_node_literatureBias_gamma)))
+print('------- Beta: -------')
+cor.test(bouhaddou_node_beta_vals, unname(unlist(bouhaddou_node_literatureBias_beta)))
+print('------- Delta: -------')
+cor.test(bouhaddou_node_delta_vals, unname(unlist(bouhaddou_literatureBias_delta)))
+
+print('With PCST:')
+print('------- Gamma: -------')
+cor.test(bouhaddou_pcst_gamma_vals, unname(unlist(bouhaddou_pcst_literatureBias_gamma)))
+print('------- Beta: -------')
+cor.test(bouhaddou_pcst_beta_vals, unname(unlist(bouhaddou_pcst_literatureBias_beta)))
+
+
+print('------- PI3K Inhibitor: -------')
+wilkes_node_gamma_vals <- c(rep(0.5, length(wilkes_node_literatureBias_gamma$`0.5`)), rep(1.0, length(wilkes_node_literatureBias_gamma$`1`)), rep(1.5, length(wilkes_node_literatureBias_gamma$`1.5`)), rep(2.0, length(wilkes_node_literatureBias_gamma$`2`)), rep(2.5, length(wilkes_node_literatureBias_gamma$`2.5`)))
+wilkes_pcst_gamma_vals <- c(rep(0.5, length(wilkes_pcst_literatureBias_gamma$`0.5`)), rep(1.0, length(wilkes_pcst_literatureBias_gamma$`1`)), rep(1.5, length(wilkes_pcst_literatureBias_gamma$`1.5`)), rep(2.0, length(wilkes_pcst_literatureBias_gamma$`2`)), rep(2.5, length(wilkes_pcst_literatureBias_gamma$`2.5`)))
+wilkes_node_beta_vals <- c(rep(1, length(wilkes_node_literatureBias_beta$`0.2`)), rep(2, length(wilkes_node_literatureBias_beta$`0.4`)), rep(3, length(wilkes_node_literatureBias_beta$`0.6`)))
+wilkes_pcst_beta_vals <- c(rep(1, length(wilkes_pcst_literatureBias_beta$`0.2`)), rep(2, length(wilkes_pcst_literatureBias_beta$`0.4`)), rep(3, length(wilkes_pcst_literatureBias_beta$`0.6`)))
+print('------- Without PCST: -------')
+print('------- Gamma: -------')
+cor.test(wilkes_node_gamma_vals, unname(unlist(wilkes_node_literatureBias_gamma)))
+print('------- Beta: -------')
+cor.test(wilkes_node_beta_vals, unname(unlist(wilkes_node_literatureBias_beta)))
+
+print('With PCST:')
+print('------- Gamma: -------')
+cor.test(wilkes_pcst_gamma_vals, unname(unlist(wilkes_pcst_literatureBias_gamma)))
+print('------- Beta: -------')
+cor.test(wilkes_pcst_beta_vals, unname(unlist(wilkes_pcst_literatureBias_beta)))

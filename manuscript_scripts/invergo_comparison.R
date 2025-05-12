@@ -2,13 +2,13 @@ library(tidyverse)
 library(readxl)
 library(data.table)
 
-omnipath_network <- read_csv('../data/OmniPath/2023_10_11_KinaseDataOmniPath.csv')
+omnipath_network <- read_csv('./data/OmniPath/2023_10_11_KinaseDataOmniPath.csv')
 omnipath_interactions <- unique(paste0(omnipath_network$enzyme, '_', omnipath_network$TARGET_UP_ID))
 # Load the data
-baseline_KIN <- read_tsv('../results/baselineKIN_comparisons/baseline_KIN/invergo2020_comparison_KIN.tsv')
+baseline_KIN <- read_tsv('./results/baselineKIN_comparisons/baseline_KIN/invergo2020_comparison_KIN.tsv')
 baseline_KIN <- baseline_KIN %>% filter(Edge_type == 'KS')
 
-data <- read_excel('../data/competitors/invergo2020_interactions.xlsx', na = c('NA', ''))
+data <- read_excel('./data/competitors/invergo2020_interactions.xlsx', na = c('NA', ''))
 colnames(data) <- data[1, ]
 data <- data %>% filter(!row_number() %in% c(1)) %>%
     filter(!is.na(Mean_posterior_probability_of_regulation)) %>%
@@ -16,7 +16,7 @@ data <- data %>% filter(!row_number() %in% c(1)) %>%
     filter(Mean_posterior_probability_of_regulation >= 0.5)
 
 # Load Biomart data
-biomart <- read_table('../data/biomart/mart_export_human_uniprot.txt') %>%
+biomart <- read_table('./data/biomart/mart_export_human_uniprot.txt') %>%
   select(ID_1, version) %>%
   distinct() %>%
   rename(Gene_ID = ID_1, Uniprot_ID = version) %>%

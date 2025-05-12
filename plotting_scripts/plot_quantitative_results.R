@@ -7,69 +7,13 @@ library(grid)
 library(enrichR)
 library(GGally)
 source('./src/UniprotIDMapping.R')
+source('./manuscript_scripts/perform_randomization_tests.R')
 # Randomization parameters
 n_randomRandFiltering <- 1000
 
 # Loading Omnipath network
 op_net <- read_csv('./data/OmniPath/2023_10_11_KinaseDataOmniPath.csv', show_col_types = F)
 op_net$Interaction <- paste0(op_net$enzyme, '_', op_net$TARGET_UP_ID, '_', op_net$TARGET_RES, op_net$TARGET_POS)
-
-# Performs random filtering
-perform_randomFiltering_test <- function(sub_scores, filtered_net, op_net, n_random = 1000) {
-  sub_scores$Interaction <- paste0(sub_scores$Source, '_', sub_scores$Target)
-  filtered_net$Interaction <- paste0(filtered_net$Source, '_', filtered_net$Target)
-  filtered_net_interactions_in_op <- filtered_net[which(filtered_net$Interaction %in% op_net$Interaction),]
-  no_randomInteractions <- c()
-  for (i in 1:n_random) {
-    net_random <- sub_scores[sample(nrow(sub_scores), nrow(filtered_net)), ]
-    no_randomInteractions <- c(
-      no_randomInteractions, 
-      length(which(net_random$Interaction %in% op_net$Interaction))  
-    ) 
-  }
-  
-  mean_val <- mean(no_randomInteractions)
-  sd_val <- sd(no_randomInteractions)
-  z_score <- (nrow(filtered_net_interactions_in_op) - mean_val) / sd_val
-  p_val <- pnorm(z_score, lower.tail = F)
-  
-  empirical_p_val <- p_val
-  print(paste0('ECDF Val: ', ecdf(no_randomInteractions)(nrow(filtered_net_interactions_in_op))))
-  
-  return(list(no_randomInteractions = no_randomInteractions, p_val = p_val)) 
-}
-
-
-perform_randomRewiring_test <- function(filtered_net, op_net, n_random = 1000) {
-  # preparing Dataframe
-  # sub_scores$Pos <- sapply(strsplit(sub_scores$Target, '_'), function(x) { str_sub(x[[2]], 2) })
-  # sub_scores$Target_w_Pos <- paste0(sub_scores$Target_LeadingProtein, '_', sub_scores$Pos)
-  filtered_net$Interaction <- paste0(filtered_net$Source, '_', filtered_net$Target)
-  filtered_net_interactions_in_op <- filtered_net[which(filtered_net$Interaction %in% op_net$Interaction),]
-  
-  g <- graph_from_data_frame(filtered_net[, c('Source', 'Target')])
-  no_randomInteractions <- c()
-  for (i in 1:n_random) {
-    g_randomlyRewired <- g %>% rewire(keeping_degseq(niter = 10 * nrow(filtered_net))) 
-    g_randomlyRewired_edges <- as.data.frame(as_edgelist(g_randomlyRewired))
-    g_randomlyRewired_interactions <- paste0(g_randomlyRewired_edges$V1, '_', g_randomlyRewired_edges$V2) 
-    no_randomInteractions <- c(
-      no_randomInteractions, 
-      length(which(g_randomlyRewired_interactions %in% op_net$Interaction))
-    )
-  }
-  
-  mean_val <- mean(no_randomInteractions)
-  sd_val <- sd(no_randomInteractions)
-  z_score <- (nrow(filtered_net_interactions_in_op) - mean_val) / sd_val
-  p_val <- pnorm(z_score, lower.tail = F)
-  
-  empirical_p_val <- p_val
-  print(paste0('ECDF Val: ', ecdf(no_randomInteractions)(nrow(filtered_net_interactions_in_op))))
-  
-  return(list(no_randomInteractions = no_randomInteractions, p_val = p_val)) 
-}
-
 
 get_randDistributionPlot <- function(filtered_net, op_net, rand_test_overlaps, p_val, title = '', supp_plot = F) {
   filtered_net$Interaction <- paste0(filtered_net$Source, '_', filtered_net$Target)

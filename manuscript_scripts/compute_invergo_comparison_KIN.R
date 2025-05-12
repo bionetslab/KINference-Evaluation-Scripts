@@ -4,7 +4,7 @@ library(data.table)
 library(Kinference)
 
 # Load the data
-data <- read_excel('../data/competitors/invergo2020_interactions.xlsx', na = c('NA', ''))
+data <- read_excel('./data/competitors/invergo2020_interactions.xlsx', na = c('NA', ''))
 colnames(data) <- data[1, ]
 data <- data %>% filter(!row_number() %in% c(1)) %>%
   filter(!is.na(Mean_posterior_probability_of_regulation)) %>%
@@ -12,7 +12,7 @@ data <- data %>% filter(!row_number() %in% c(1)) %>%
   filter(Mean_posterior_probability_of_regulation >= 0.5)
 
 # Load Biomart data
-biomart <- read_table('../data/Biomart/mart_export_human_uniprot.txt') %>%
+biomart <- read_table('./data/biomart/mart_export_human_uniprot.txt') %>%
   select(ID_1, version) %>%
   distinct() %>%
   rename(Gene_ID = ID_1, Uniprot_ID = version) %>%
@@ -77,7 +77,7 @@ write_tsv(Kinference_input, './invergo2020_baselineKIN_comparison_data.tsv')
 Kinference::run_KINference(
     f.path='./invergo2020_baselineKIN_comparison_data.tsv',
     gamma=1.0,
-    output.path='../results/baselineKIN_comparisons',
+    output.path='./results/baselineKIN_comparisons',
     output.id='invergo2020_comparison',
     apply.PCST=FALSE,
     apply.FS=TRUE,
