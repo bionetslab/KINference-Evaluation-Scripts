@@ -334,3 +334,145 @@ print('------- Gamma: -------')
 cor.test(wilkes_pcst_gamma_vals, unname(unlist(wilkes_pcst_literatureBias_gamma)))
 print('------- Beta: -------')
 cor.test(wilkes_pcst_beta_vals, unname(unlist(wilkes_pcst_literatureBias_beta)))
+
+
+
+#####################
+## Invergo et al. ##
+####################
+invergo_baseline_KIN <- read_tsv('./results/baselineKIN_comparisons/baseline_KIN/invergo2020_comparison_KIN.tsv')
+invergo_baseline_KIN_interactions <- unique(paste0(invergo_baseline_KIN$Source, '_', invergo_baseline_KIN$Target_Uniprot))
+
+invergo_baseline_KIN_without_n_threshold <- read_tsv('./results/baselineKIN_comparisons_without_n_threshold/baseline_KIN/invergo2020_comparison_KIN.tsv') 
+
+# get invergo interactions and map them to UniProt IDs
+invergo_data <- read_excel('./data/competitors/invergo2020_interactions.xlsx', na = c('NA', '')) 
+colnames(invergo_data) <- invergo_data[1, ]
+invergo_data <- invergo_data[-1, ]
+# filtering based on threshold in invergo paper
+invergo_data <- invergo_data %>% mutate(Mean_posterior_probability_of_regulation = as.double(Mean_posterior_probability_of_regulation)) %>% filter(Mean_posterior_probability_of_regulation > 0.5, !is.na(Mean_posterior_probability_of_regulation))
+invergo_data$Source <- sapply(
+  invergo_data$Transducing_kinase, 
+  function(x) {unname(uniprots[x])[1]}
+)
+invergo_data$Target <- sapply(
+  invergo_data$Substrate_kinase, 
+  function(x) {unname(uniprots[x])[1]}
+)
+get_pubmed_distribution_invergo <- function(data) {
+  targets <- unique(data$Substrate_kinase)
+  targets <- targets[!is.na(targets)]
+  ensg_IDs <- unique(biomart[which(biomart$`UniProtKB Gene Name symbol` %in% targets), ][['Gene stable ID']])
+  geneIDs <- unique(gene2ensembl[which(gene2ensembl$Ensembl_gene_identifier %in% ensg_IDs),]$'GeneID')
+  distribution <- table(gene2pubmed[which(gene2pubmed$GeneID %in% geneIDs),]$GeneID)
+  df <- tibble(
+    "Gene" = names(distribution),
+    "Occurences" = as.integer(unname(distribution))
+  )
+  return(df)
+}
+invergo_lit_bias <- get_pubmed_distribution_invergo(invergo_data)
+
+comp_data <- tibble(
+  Values = invergo_lit_bias$Occurences,
+  Group = rep("Invergo et al.", nrow(invergo_lit_bias))
+)
+
+###################
+## Buljan et al. ##
+###################
+buljan_baseline_KIN <- read_tsv('./results/baselineKIN_comparisons/baseline_KIN/buljan2020_comparison_KIN.tsv')
+
+buljan_data <- read_excel('./data/competitors/buljan2020_interactions.xlsx', na = c('NA', ''))
+colnames(buljan_data) <- buljan_data[2,]
+buljan_data <- buljan_data[-c(1, 2),]
+# filtering based on threshold in buljan paper
+buljan_data <- buljan_data %>% mutate(wdscore = as.double(wdscore), gfpratio = as.double(gfpratio)) %>% filter(wdscore > 73.6, gfpratio > 18.4)
+get_pubmed_distribution_buljan <- function(data) {
+  targets <- unique(data$Protein_id)
+  targets <- targets[!is.na(targets)]
+  ensg_IDs <- unique(biomart[which(biomart$`UniProtKB Gene Name ID` %in% targets), ][['Gene stable ID']])
+  geneIDs <- unique(gene2ensembl[which(gene2ensembl$Ensembl_gene_identifier %in% ensg_IDs),]$'GeneID')
+  distribution <- table(gene2pubmed[which(gene2pubmed$GeneID %in% geneIDs),]$GeneID)
+  df <- tibble(
+    "Gene" = names(distribution),
+    "Occurences" = as.integer(unname(distribution))
+  )
+  return(df)
+}
+buljan_lit_bias <- get_pubmed_distribution_buljan(buljan_data) 
+
+comp_data <- rbind(comp_data,
+  tibble(
+    Values = buljan_lit_bias$Occurences,
+    Group = rep("Buljan et al.", nrow(buljan_lit_bias))
+  )
+)
+
+###################
+## GRNBoost2 ##
+###################
+grnboost2_x0 <- read_tsv('./results/GRNBoost2/x0_network.tsv', col_names = F)
+grnboost2_x1 <- read_tsv('./results/GRNBoost2/x1_network.tsv', col_names = F)
+grnboost2_x0$Source <- sapply(strsplit(grnboost2_x0$X1, '_'), function(x){ x[1] })
+grnboost2_x1$Source <- sapply(strsplit(grnboost2_x1$X1, '_'), function(x){ x[1] })
+grnboost2_x0$Target <- sapply(strsplit(grnboost2_x0$X2, '_'), function(x){ x[1] })
+grnboost2_x1$Target <- sapply(strsplit(grnboost2_x1$X2, '_'), function(x){ x[1] })
+grnboost2_data <- tibble(Source = c(grnboost2_x0$Source, grnboost2_x1$Source), Target = c(grnboost2_x0$Target, grnboost2_x1$Target))
+grnboost2_data <- unique(grnboost2_data)
+
+get_pubmed_distribution_grnboost2 <- function(data) {
+  targets <- unique(data$Target)
+  targets <- targets[!is.na(targets)]
+  ensg_IDs <- unique(biomart[which(biomart$`UniProtKB Gene Name ID` %in% targets), ][['Gene stable ID']])
+  geneIDs <- unique(gene2ensembl[which(gene2ensembl$Ensembl_gene_identifier %in% ensg_IDs),]$'GeneID')
+  distribution <- table(gene2pubmed[which(gene2pubmed$GeneID %in% geneIDs),]$GeneID)
+  df <- tibble(
+    "Gene" = names(distribution),
+    "Occurences" = as.integer(unname(distribution))
+  )
+  return(df)
+}
+
+grnboost2_lit_bias <- get_pubmed_distribution_grnboost2(grnboost2_data) 
+
+comp_data <- rbind(comp_data,
+                   tibble(
+                     Values = grnboost2_lit_bias$Occurences,
+                     Group = rep("GRNBoost2", nrow(grnboost2_lit_bias))
+                   )
+)
+
+###################
+## KINference ##
+###################
+baseline_KIN <- read_tsv('./results/example_results_baseline_KIN/example_matrix_run_KIN.tsv')
+baseline_KIN <- baseline_KIN %>% filter(Edge_type == 'KS')
+baseline_KIN_lit_bias <- get_pubmed_distribution(baseline_KIN)
+comp_data <- rbind(comp_data,
+                   tibble(
+                     Values = baseline_KIN_lit_bias$Occurences,
+                     Group = rep("KINference", nrow(baseline_KIN_lit_bias))
+                   )
+)
+
+# PLOT
+comp_data$Group <- factor(
+  comp_data$Group,
+  levels = c("Invergo et al.", "Buljan et al.", "GRNBoost2", "KINference"),
+  labels = c("Invergo~et~al.", "Buljan~et~al.", "GRNBoost2", "KINference")
+)
+competitor_plot <- ggplot(comp_data, aes(x = Group, y = Values, fill = Group)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) + 
+  labs(title = expression(paste("Literature bias: KINference vs. Competitors")),
+       x = "", y = "Number of PubMed mentions") +
+  ylim(0, 500) +
+  scale_x_discrete(labels = function(x) {parse(text = x)}) +
+  theme_minimal() +
+  theme(
+    legend.title = element_blank(), 
+    axis.text = element_text(size = 14, angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 18, hjust = 0.5),
+    legend.position = "none"
+  )

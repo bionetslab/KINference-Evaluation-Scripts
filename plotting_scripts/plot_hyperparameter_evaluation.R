@@ -105,15 +105,15 @@ get_filtered_KIN_results <- function(path, tested_alpha, tested_n, tested_beta, 
           # compute random filtering and random rewiring
           filtered_KIN <- filtered_KIN[which(filtered_KIN$Edge_type == 'KS'), ]
           node_KINs[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- filtered_KIN
-          #node_rf_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomFiltering_test(
-          #  baseline_KIN, 
-          #  filtered_KIN, 
-          #  op_net
-          #)
-          #node_rr_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomRewiring_test(
-          #  filtered_KIN, 
-          #  op_net
-          #)
+          node_rf_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomFiltering_test(
+           baseline_KIN, 
+           filtered_KIN, 
+           op_net
+          )
+          node_rr_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomRewiring_test(
+           filtered_KIN, 
+           op_net
+          )
           
           # get edge filtered KIN
           filtered_KIN <- edge_filtered_KINs[grepl(paste0('alpha', alpha, '_'), edge_filtered_KINs)]
@@ -126,15 +126,15 @@ get_filtered_KIN_results <- function(path, tested_alpha, tested_n, tested_beta, 
           filtered_PCST_KIN <- read_tsv(paste0(path, 'edge_filtered_KIN/', filtered_PCST_KIN))
           filtered_PCST_KIN <- filtered_PCST_KIN[which(filtered_PCST_KIN$Edge_type == 'KS'), ]
           pcst_KINs[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- filtered_PCST_KIN
-          #pcst_rf_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomFiltering_test(
-          #  baseline_KIN, 
-          #  filtered_PCST_KIN, 
-          #  op_net
-          #)
-          #pcst_rr_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomRewiring_test(
-          #  filtered_PCST_KIN, 
-          #  op_net
-          #)
+          pcst_rf_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomFiltering_test(
+           baseline_KIN, 
+           filtered_PCST_KIN, 
+           op_net
+          )
+          pcst_rr_results[[paste0('alpha', alpha, '_n', n, '_beta', beta, '_gamma', gamma)]] <- perform_randomRewiring_test(
+           filtered_PCST_KIN, 
+           op_net
+          )
           
           # get CORR filtered KINs
           filtered_CORR_KIN <- filtered_KIN[grepl('CORR_', filtered_KIN)]
@@ -283,237 +283,111 @@ bouhaddou_filtered_KIN_results <- get_filtered_KIN_results(
    tested_gamma,
    tested_delta
 )
-# bouhaddou_filtered_KIN_results <- readRDS(paste0(bouhaddou_path, 'randomization_test_results.rds'))
-# bouhaddou_plots <- get_plots(bouhaddou_filtered_KIN_results, tested_alpha, tested_n, tested_beta, tested_gamma, tested_delta, dataset='Bouhaddou2023')
-
-
-
-plot_hyperparameter_effect_line <- function(wilkes_p_vals, bouhaddou_p_vals, hyperparameter, hyperparameter_values, y_lab="Mean P-value", legend="") {
-  names(wilkes_p_vals) <- paste0(names(wilkes_p_vals), '_')
-  names(bouhaddou_p_vals) <- paste0(names(bouhaddou_p_vals), '_')
-  print(names(bouhaddou_p_vals))
-  data <- data.frame()
-  for (param in hyperparameter_values) {
-    print(paste0(hyperparameter,param, '_'))
-    p_vals <- unlist(wilkes_p_vals[names(wilkes_p_vals)[grepl(paste0(hyperparameter,param, '_'), names(wilkes_p_vals))]])
-    p_vals <- p_vals[!is.na(p_vals)]
-    mean_p <- mean(p_vals)
-    se <- sd(p_vals) / sqrt(length(p_vals))
-    lower <- max(c(mean_p - 1.96 * se, 0))
-    upper <- mean_p + 1.96 * se
-    condition <- paste('PI3K inhibition in resistant breast cancer cell line', legend) 
-    data <- rbind(data, list(hyperparam = param, mean_p = mean_p, lower = lower, upper = upper, condition = condition))
-  }  
-  for (param in hyperparameter_values) {
-    p_vals <- unlist(bouhaddou_p_vals[names(bouhaddou_p_vals)[grepl(paste0(hyperparameter,param, '_'), names(bouhaddou_p_vals))]])
-    p_vals <- p_vals[!is.na(p_vals)]
-    mean_p <- mean(p_vals)
-    se <- sd(p_vals) / sqrt(length(p_vals))
-    lower <- max(c(mean_p - 1.96 * se, 0))
-    upper <- mean_p + 1.96 * se
-    condition <- paste('SARS-CoV-2', legend) 
-    data <- rbind(data, list(hyperparam = param, mean_p = mean_p, lower = lower, upper = upper, condition = condition))
-  }  
-  print(data)
-  data$hyperparam <- as.factor(data$hyperparam)
-  if (hyperparameter == 'alpha') {
-    hyperparam_labels <- sapply(levels(data$hyperparam), function(x) {
-      bquote(alpha == .(x))  # Uses bquote for dynamic labels
-    })
-  } else if (hyperparameter == 'n') {
-    hyperparam_labels <- sapply(levels(data$hyperparam), function(x) {
-      paste0('n = ', x)  # Uses bquote for dynamic labels
-    })
-  } else if (hyperparameter == 'beta') {
-    hyperparam_labels <- sapply(levels(data$hyperparam), function(x) {
-      bquote(beta == .(x))  # Uses bquote for dynamic labels
-    })
-  } else if (hyperparameter == 'gamma') {
-    hyperparam_labels <- sapply(levels(data$hyperparam), function(x) {
-      bquote(gamma == .(x))  # Uses bquote for dynamic labels
-    }) 
-  }
-  if (hyperparameter == 'n') {
-    plot <- ggplot(data, aes(x = hyperparam, y = mean_p, group = condition, color = condition)) +
-      geom_line(aes(group=condition)) +  # Line plot for mean p-value
-      geom_point(aes(group=condition)) +  # Points for means
-      geom_ribbon(aes(ymin = lower, ymax = upper, fill = condition), alpha = 0.2, color = NA) +  # Confidence interval
-      scale_x_discrete(labels = hyperparam_labels) +
-      # scale_y_continuous(limits = c(0, round(max(data$upper) + 0.05, str_count(gsub(".*[.]","",as.character(max(data$upper))), "0")+1)), breaks = waiver(), n.breaks = 5) +
-      xlab("Hyperparameter values") +
-      ylab(y_lab) + 
-      theme_minimal()
-  } else {
-    plot <- ggplot(data, aes(x = hyperparam, y = mean_p, group = condition, color = condition)) +
-      geom_line(aes(group=condition)) +  # Line plot for mean p-value
-      geom_point(aes(group=condition)) +  # Points for means
-      geom_ribbon(aes(ymin = lower, ymax = upper, fill = condition), alpha = 0.2, color = NA) +  # Confidence interval
-      scale_x_discrete(labels = do.call(expression, hyperparam_labels)) +
-      xlab("Hyperparameter values") +
-      ylab(y_lab) + 
-      theme_minimal()
-  }
-  return(plot)
-}
-
 bouhaddou_filtered_KIN_results <- readRDS(paste0(bouhaddou_path, 'randomization_test_results.rds'))
-wilkes_filtered_KIN_results <- readRDS(paste0(wilkes_path, 'randomization_test_results.rds'))
-
-# NODE RF plots
-wilkes_node_rf_p_vals <- lapply(wilkes_filtered_KIN_results$node_rf, function(x) x$p_val)
-bouhaddou_node_rf_p_vals <- lapply(bouhaddou_filtered_KIN_results$node_rf, function(x) x$p_val)
-alpha_node_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rf_p_vals, bouhaddou_node_rf_p_vals, "alpha", tested_alpha)
-n_node_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rf_p_vals, bouhaddou_node_rf_p_vals, 'n', tested_n)
-gamma_node_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rf_p_vals, bouhaddou_node_rf_p_vals, 'gamma', tested_gamma)
-beta_node_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rf_p_vals, bouhaddou_node_rf_p_vals, 'beta', tested_beta)
-
-node_rf_plot <- alpha_node_rf_effect_plot + 
-  n_node_rf_effect_plot + 
-  gamma_node_rf_effect_plot + 
-  beta_node_rf_effect_plot + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = "Hyperparameter evaluation: Node RF (DIFF, FS)") & 
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
-
-# NODE RR plots
-wilkes_node_rr_p_vals <- lapply(wilkes_filtered_KIN_results$node_rr, function(x) x$p_val) 
-bouhaddou_node_rr_p_vals <- lapply(bouhaddou_filtered_KIN_results$node_rr, function(x) x$p_val) 
-alpha_node_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rr_p_vals, bouhaddou_node_rr_p_vals, "alpha", tested_alpha)
-n_node_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rr_p_vals, bouhaddou_node_rr_p_vals, 'n', tested_n, y_lab="")
-gamma_node_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rr_p_vals, bouhaddou_node_rr_p_vals, 'gamma', tested_gamma)
-beta_node_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_node_rr_p_vals, bouhaddou_node_rr_p_vals, 'beta', tested_beta, y_lab="")
-
-node_rr_plot <- alpha_node_rr_effect_plot + 
-  n_node_rr_effect_plot + 
-  gamma_node_rr_effect_plot + 
-  beta_node_rr_effect_plot + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = "Hyperparameter evaluation: Node RR (DIFF, FS)") & 
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
-
-# PCST RF plots
-wilkes_pcst_rf_p_vals <- lapply(wilkes_filtered_KIN_results$pcst_rf, function(x) x$p_val)
-bouhaddou_pcst_rf_p_vals <- lapply(bouhaddou_filtered_KIN_results$pcst_rf, function(x) x$p_val)
-alpha_pcst_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rf_p_vals, bouhaddou_pcst_rf_p_vals, "alpha", tested_alpha)
-n_pcst_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rf_p_vals, bouhaddou_pcst_rf_p_vals, 'n', tested_n, y_lab="")
-gamma_pcst_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rf_p_vals, bouhaddou_pcst_rf_p_vals, 'gamma', tested_gamma)
-beta_pcst_rf_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rf_p_vals, bouhaddou_pcst_rf_p_vals, 'beta', tested_beta, y_lab="")
-
-pcst_rf_plot <- alpha_pcst_rf_effect_plot + 
-  n_pcst_rf_effect_plot + 
-  gamma_pcst_rf_effect_plot + 
-  beta_pcst_rf_effect_plot + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = "Hyperparameter evaluation: Edge RF (PCST, DIFF, FS)") & 
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
-
-# PCST RR plots
-wilkes_pcst_rr_p_vals <- lapply(wilkes_filtered_KIN_results$pcst_rr, function(x) x$p_val)
-bouhaddou_pcst_rr_p_vals <- lapply(bouhaddou_filtered_KIN_results$pcst_rr, function(x) x$p_val)
-alpha_pcst_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rr_p_vals, bouhaddou_pcst_rr_p_vals, "alpha", tested_alpha)
-n_pcst_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rr_p_vals, bouhaddou_pcst_rr_p_vals, 'n', tested_n)
-gamma_pcst_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rr_p_vals, bouhaddou_pcst_rr_p_vals, 'gamma', tested_gamma)
-beta_pcst_rr_effect_plot <- plot_hyperparameter_effect_line(wilkes_pcst_rr_p_vals, bouhaddou_pcst_rr_p_vals, 'beta', tested_beta)
-
-pcst_rr_plot <- alpha_pcst_rr_effect_plot + 
-  n_pcst_rr_effect_plot + 
-  gamma_pcst_rr_effect_plot + 
-  beta_pcst_rr_effect_plot + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = "Hyperparameter evaluation: Edge RR (PCST, DIFF, FS)") & 
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
+bouhaddou_plots <- get_plots(bouhaddou_filtered_KIN_results, tested_alpha, tested_n, tested_beta, tested_gamma, tested_delta, dataset='Bouhaddou2023')
 
 
-# Effect size plots
-
-# Node filters
-wilkes_KIN_node_rows <- lapply(wilkes_filtered_KIN_results$node_KINs, function(x) nrow(x))
-bouhaddou_KIN_node_rows <- lapply(bouhaddou_filtered_KIN_results$node_KINs, function(x) nrow(x))
-alpha_node_edge_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, "alpha", tested_alpha, y_lab = "Number of edges")
-n_node_edge_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, 'n', tested_n, y_lab = "Number of edges")
-gamma_node_edge_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, 'gamma', tested_gamma, y_lab = "Number of edges")
-beta_node_edge_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, 'beta', tested_beta, y_lab = "Number of edges")
-
-node_edge_effect_plot <- alpha_node_edge_effect_plot + 
-  n_node_edge_effect_plot + 
-  gamma_node_edge_effect_plot + 
-  beta_node_edge_effect_plot + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = "Hyperparameter evaluation: Number of edges  (DIFF, FS)") & 
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
-
-
-wilkes_KIN_edge_rows <- lapply(wilkes_filtered_KIN_results$pcst_KINs, function(x) nrow(x))
-bouhaddou_KIN_edge_rows <- lapply(bouhaddou_filtered_KIN_results$pcst_KINs, function(x) nrow(x))
-alpha_pcst_edge_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, "alpha", tested_alpha, y_lab = "Number of edges", legend = "(with PCST)")
-n_pcst_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'n', tested_n, y_lab = "Number of edges", legend = "(with PCST)")
-gamma_pcst_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'gamma', tested_gamma, y_lab = "Number of edges", legend = "(with PCST)")
-beta_pcst_effect_plot <- plot_hyperparameter_effect_line(wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'beta', tested_beta, y_lab = "Number of edges", legend = "(with PCST)")
-pcst_edge_effect_plot <- alpha_pcst_edge_effect_plot + 
-  n_pcst_effect_plot + 
-  gamma_pcst_effect_plot + 
-  beta_pcst_effect_plot + 
-  plot_layout(axis_titles = "collect", guides = "collect") +
-  plot_annotation(title = "Hyperparameter evaluation: Number of edges  (PCST, DIFF, FS)") & 
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
-
-
-
-plot_total_effect_size <- function(wilkes_p_vals_noderf, bouhaddou_p_vals_noderf, wilkes_p_vals_pcstrf, bouhaddou_p_vals_pcstrf, hyperparameter, hyperparameter_values, y_lab="Mean P-value") {
+plot_total_effect_size <- function(wilkes_p_vals_noderf, bouhaddou_p_vals_noderf, wilkes_p_vals_pcstrf, bouhaddou_p_vals_pcstrf, hyperparameter, hyperparameter_values, y_lab="", p_val_plot=TRUE) {
   names(wilkes_p_vals_noderf) <- paste0(names(wilkes_p_vals_noderf), '_')
   names(bouhaddou_p_vals_noderf) <- paste0(names(bouhaddou_p_vals_noderf), '_')
   names(wilkes_p_vals_pcstrf) <- paste0(names(wilkes_p_vals_pcstrf), '_')
   names(bouhaddou_p_vals_pcstrf) <- paste0(names(bouhaddou_p_vals_pcstrf), '_')
   data <- data.frame()
+  upper_ylim <- 0
   for (param in hyperparameter_values) {
     p_vals <- unlist(wilkes_p_vals_noderf[names(wilkes_p_vals_noderf)[grepl(paste0(hyperparameter,param, '_'), names(wilkes_p_vals_noderf))]])
     p_vals <- p_vals[!is.na(p_vals)]
+    if(p_val_plot){
+      p_vals <- p.adjust(p_vals, "BH")
+      p_vals <- -log10(p_vals)
+    }
     mean_p <- mean(p_vals)
-    se <- sd(p_vals) / sqrt(length(p_vals))
-    lower <- max(c(mean_p - 1.96 * se, 0))
-    upper <- mean_p + 1.96 * se
+    if (mean_p > 100) {
+      mean_p <- 100
+      lower <- mean_p - 1
+      upper <- mean_p + 1
+    } else {
+      se <- sd(p_vals) / sqrt(length(p_vals))
+      lower <- max(c(mean_p - 1.96 * se, 0))
+      upper <- mean_p + 1.96 * se
+    }
     condition <- 'PI3K inhibition in resistant breast cancer cell line (without PCST)' 
-    col <- 'PI3K inhibition in resistant breast cancer cell line'
+    col <- 'PI3K inhibition in resistant\n breast cancer cell line'
     linetype <- 'without PCST'
     data <- rbind(data, list(hyperparam = param, mean_p = mean_p, lower = lower, upper = upper, condition = condition, col = col, linetype = linetype))
+    upper_ylim <- max(c(upper_ylim, max(upper)))
   }  
   for (param in hyperparameter_values) {
     p_vals <- unlist(bouhaddou_p_vals_noderf[names(bouhaddou_p_vals_noderf)[grepl(paste0(hyperparameter,param, '_'), names(bouhaddou_p_vals_noderf))]])
     p_vals <- p_vals[!is.na(p_vals)]
+    if(p_val_plot){
+      p_vals <- p.adjust(p_vals, "BH")
+      print(p_vals)
+      p_vals <- -log10(p_vals)
+    }
     mean_p <- mean(p_vals)
-    se <- sd(p_vals) / sqrt(length(p_vals))
-    lower <- max(c(mean_p - 1.96 * se, 0))
-    upper <- mean_p + 1.96 * se
+    if (mean_p > 100) {
+      mean_p <- 100
+      lower <- mean_p - 1
+      upper <- mean_p + 1
+    } else {
+      se <- sd(p_vals) / sqrt(length(p_vals))
+      lower <- max(c(mean_p - 1.96 * se, 0))
+      upper <- mean_p + 1.96 * se
+    }
     condition <- 'SARS-CoV-2 (without PCST)'
     col <- 'SARS-CoV-2'
     linetype <- 'without PCST'
     data <- rbind(data, list(hyperparam = param, mean_p = mean_p, lower = lower, upper = upper, condition = condition, col = col, linetype = linetype))
+    print(max(upper))
+    upper_ylim <- max(c(upper_ylim, max(upper)))
   }  
   for (param in hyperparameter_values) {
     p_vals <- unlist(wilkes_p_vals_pcstrf[names(wilkes_p_vals_pcstrf)[grepl(paste0(hyperparameter,param, '_'), names(wilkes_p_vals_pcstrf))]])
     p_vals <- p_vals[!is.na(p_vals)]
+    if(p_val_plot){
+      p_vals <- p.adjust(p_vals, "BH")
+      p_vals <- -log10(p_vals)
+    }
     mean_p <- mean(p_vals)
-    se <- sd(p_vals) / sqrt(length(p_vals))
-    lower <- max(c(mean_p - 1.96 * se, 0))
-    upper <- mean_p + 1.96 * se
+    if (mean_p > 100) {
+      mean_p <- 100
+      lower <- mean_p - 1
+      upper <- mean_p + 1
+    } else {
+      se <- sd(p_vals) / sqrt(length(p_vals))
+      lower <- max(c(mean_p - 1.96 * se, 0))
+      upper <- mean_p + 1.96 * se
+    }
     condition <- 'PI3K inhibition in resistant breast cancer cell line (with PCST)' 
-    col <- 'PI3K inhibition in resistant breast cancer cell line'
+    col <- 'PI3K inhibition in resistant\n breast cancer cell line'
     linetype <- 'with PCST'
     data <- rbind(data, list(hyperparam = param, mean_p = mean_p, lower = lower, upper = upper, condition = condition, col = col, linetype = linetype))
+    upper_ylim <- max(c(upper_ylim, max(upper)))
   }  
   for (param in hyperparameter_values) {
     p_vals <- unlist(bouhaddou_p_vals_pcstrf[names(bouhaddou_p_vals_pcstrf)[grepl(paste0(hyperparameter,param, '_'), names(bouhaddou_p_vals_pcstrf))]])
     p_vals <- p_vals[!is.na(p_vals)]
+    if(p_val_plot){
+      p_vals <- p.adjust(p_vals, "BH")
+      p_vals <- -log10(p_vals)
+    }
     mean_p <- mean(p_vals)
-    se <- sd(p_vals) / sqrt(length(p_vals))
-    lower <- max(c(mean_p - 1.96 * se, 0))
-    upper <- mean_p + 1.96 * se
+    if (mean_p > 100) {
+      mean_p <- 100
+      lower <- mean_p - 1
+      upper <- mean_p + 1
+    } else {
+      se <- sd(p_vals) / sqrt(length(p_vals))
+      lower <- max(c(mean_p - 1.96 * se, 0))
+      upper <- mean_p + 1.96 * se
+    }
     condition <- 'SARS-CoV-2 (with PCST)'
     col <- 'SARS-CoV-2'
     linetype <- 'with PCST'
     data <- rbind(data, list(hyperparam = param, mean_p = mean_p, lower = lower, upper = upper, condition = condition, col = col, linetype = linetype))
+    upper_ylim <- max(c(upper_ylim, max(upper)))
   } 
-  print(data)
   data$hyperparam <- as.factor(data$hyperparam)
   if (hyperparameter == 'alpha') {
     hyperparam_labels <- sapply(levels(data$hyperparam), function(x) {
@@ -536,21 +410,35 @@ plot_total_effect_size <- function(wilkes_p_vals_noderf, bouhaddou_p_vals_noderf
     plot <- ggplot(data, aes(x = hyperparam, y = mean_p, group = condition, color = col, linetype = linetype)) +
       geom_line(aes(group=condition)) +  # Line plot for mean p-value
       geom_point(aes(group=condition)) +  # Points for means
-      geom_ribbon(aes(ymin = lower, ymax = upper, fill = col), alpha = 0.2, color = NA) +  # Confidence interval
+      geom_ribbon(aes(ymin = lower, ymax = upper, fill = col), alpha = 0.2, color = NA) + # Confidence interval
       scale_x_discrete(labels = hyperparam_labels) +
+      ylim(0, upper_ylim) +
       # scale_y_continuous(limits = c(0, round(max(data$upper) + 0.05, str_count(gsub(".*[.]","",as.character(max(data$upper))), "0")+1)), breaks = waiver(), n.breaks = 5) +
       xlab("Hyperparameter values") +
-      ylab(y_lab) + 
-      theme_minimal()
+      ylab(expression('Mean adjusted -log'[10]*'-P-value')) + 
+      theme_minimal() +
+      theme(
+        axis.text = element_text(size = 14, angle = 45, hjust = 1),
+        axis.title = element_text(size = 16),
+        plot.title = element_text(size = 18, hjust = 0.5),
+        legend.text = element_text(size = 16)
+      )
   } else {
     plot <- ggplot(data, aes(x = hyperparam, y = mean_p, group = condition, color = col, linetype = linetype)) +
       geom_line(aes(group=condition)) +  # Line plot for mean p-value
       geom_point(aes(group=condition)) +  # Points for means
       geom_ribbon(aes(ymin = lower, ymax = upper, fill = col), alpha = 0.2, color = NA) +  # Confidence interval
+      ylim(0, upper_ylim) +
       scale_x_discrete(labels = do.call(expression, hyperparam_labels)) +
       xlab("Hyperparameter values") +
-      ylab(y_lab) + 
-      theme_minimal()
+      ylab(expression('Mean adjusted -log'[10]*'-P-value')) + 
+      theme_minimal() + 
+      theme(
+        axis.text = element_text(size = 14, angle = 45, hjust = 1),
+        axis.title = element_text(size = 16),
+        plot.title = element_text(size = 18, hjust = 0.5),
+        legend.text = element_text(size = 16)
+      )
   }
   return(plot)
 }
@@ -561,10 +449,10 @@ bouhaddou_KIN_node_rows <- lapply(bouhaddou_filtered_KIN_results$node_KINs, func
 wilkes_KIN_edge_rows <- lapply(wilkes_filtered_KIN_results$pcst_KINs, function(x) nrow(x))
 bouhaddou_KIN_edge_rows <- lapply(bouhaddou_filtered_KIN_results$pcst_KINs, function(x) nrow(x))
 
-alpha_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, "alpha", tested_alpha, y_lab = "Number of edges")
-n_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'n', tested_n, y_lab = "Number of edges")
-gamma_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'gamma', tested_gamma, y_lab = "Number of edges")
-beta_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'beta', tested_beta, y_lab = "Number of edges")
+alpha_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, "alpha", tested_alpha, y_lab = "Number of edges", p_val_plot=FALSE)
+n_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'n', tested_n, y_lab = "Number of edges", p_val_plot=FALSE)
+gamma_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'gamma', tested_gamma, y_lab = "Number of edges", p_val_plot=FALSE)
+beta_node_edge_effect_plot <- plot_total_effect_size(wilkes_KIN_node_rows, bouhaddou_KIN_node_rows, wilkes_KIN_edge_rows, bouhaddou_KIN_edge_rows, 'beta', tested_beta, y_lab = "Number of edges", p_val_plot=FALSE)
 
 node_edge_effect_plot <- alpha_node_edge_effect_plot + 
   n_node_edge_effect_plot + 
@@ -572,7 +460,7 @@ node_edge_effect_plot <- alpha_node_edge_effect_plot +
   beta_node_edge_effect_plot + 
   plot_layout(axis_titles = "collect", guides = "collect") +
   plot_annotation(title = "Hyperparameter evaluation: Number of edges") &
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm')) &
+  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(size = 18, hjust = 0.5), legend.spacing.x = unit(0.5, 'cm')) &
   guides(color = guide_legend(nrow = 2, byrow = TRUE),
          linetype = guide_legend(nrow = 2, byrow = TRUE))
 
@@ -595,11 +483,9 @@ rf_test_plot <- alpha_rf_effect_plot +
   beta_rf_effect_plot + 
   plot_layout(axis_titles = "collect", guides = "collect") +
   plot_annotation(title = "Hyperparameter evaluation: Random filtering test") &
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm')) &
+  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(size = 18, hjust = 0.5), legend.spacing.x = unit(0.5, 'cm')) &
   guides(color = guide_legend(nrow = 2, byrow = TRUE),
          linetype = guide_legend(nrow = 2, byrow = TRUE))
-
-manuscript_hyperparameter_plot <- grid.arrange(rf_test_plot, node_edge_effect_plot, nrow = 2)
 
 ## RR Plot
 wilkes_node_rr_p_vals <- lapply(wilkes_filtered_KIN_results$node_rr, function(x) x$p_val)
@@ -618,7 +504,7 @@ rr_test_plot <- alpha_rr_effect_plot +
   beta_rr_effect_plot + 
   plot_layout(axis_titles = "collect", guides = "collect") +
   plot_annotation(title = "Hyperparameter evaluation: Random rewiring test") &
-  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(hjust = 0.5), legend.spacing.x = unit(0.5, 'cm')) &
+  theme(legend.position = "bottom", legend.title = element_blank(), plot.title = element_text(size = 18, hjust = 0.5), legend.spacing.x = unit(0.5, 'cm')) &
   guides(color = guide_legend(nrow = 2, byrow = TRUE),
          linetype = guide_legend(nrow = 2, byrow = TRUE))
 
@@ -676,10 +562,12 @@ corr_plot <- function(corr_KIN_sizes, node_KIN_sizes, hyperparameter='delta', hy
     scale_fill_discrete(name = NULL) +
     xlab("Hyperparameter values") +
     ylab("Number of edges") + 
-    theme_minimal()
+    theme_minimal() +
+    theme(
+      axis.text = element_text(size = 14, angle = 45, hjust = 1),
+      axis.title = element_text(size = 16),
+      plot.title = element_text(size = 18, hjust = 0.5),
+      legend.text = element_text(size = 16)
+    )
+  return(plot)
 }
-  
-  
-
-
-
