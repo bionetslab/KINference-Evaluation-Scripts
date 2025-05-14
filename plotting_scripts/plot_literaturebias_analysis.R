@@ -367,6 +367,8 @@ colnames(invergo_data) <- invergo_data[1, ]
 invergo_data <- invergo_data[-1, ]
 # filtering based on threshold in invergo paper
 invergo_data <- invergo_data %>% mutate(Mean_posterior_probability_of_regulation = as.double(Mean_posterior_probability_of_regulation)) %>% filter(Mean_posterior_probability_of_regulation > 0.5, !is.na(Mean_posterior_probability_of_regulation))
+uniprots <- biomart$`UniProtKB/Swiss-Prot ID`
+names(uniprots) <- biomart$`UniProtKB Gene Name symbol`
 invergo_data$Source <- sapply(
   invergo_data$Transducing_kinase, 
   function(x) {unname(uniprots[x])[1]}
