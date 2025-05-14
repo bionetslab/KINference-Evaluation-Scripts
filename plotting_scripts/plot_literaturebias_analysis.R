@@ -335,6 +335,22 @@ cor.test(wilkes_pcst_gamma_vals, unname(unlist(wilkes_pcst_literatureBias_gamma)
 print('------- Beta: -------')
 cor.test(wilkes_pcst_beta_vals, unname(unlist(wilkes_pcst_literatureBias_beta)))
 
+# Correlation result: Table
+data <- data.frame(matrix(c(
+  signif(cor_wilkes_node_beta$estimate, digits=3), signif(cor_wilkes_node_gamma$estimate, digits=3), "NA", signif(cor_wilkes_pcst_beta$estimate, digits=3), signif(cor_wilkes_pcst_gamma$estimate, digits=3),
+  signif(cor_wilkes_node_beta$p.value, digits=3), signif(cor_wilkes_node_gamma$p.value, digits=3), "NA", signif(cor_wilkes_pcst_beta$p.value, digits=3), signif(cor_wilkes_pcst_gamma$p.value, digits=3),
+  signif(cor_bouhaddou_node_beta$estimate, digits=3), signif(cor_bouhaddou_node_gamma$estimate, digits=3), signif(cor_bouhaddou_node_delta$estimate, digits=3), signif(cor_bouhaddou_pcst_beta$estimate, digits=3), signif(cor_bouhaddou_pcst_gamma$estimate, digits=3),
+  signif(cor_bouhaddou_node_beta$p.value, digits=3), signif(cor_bouhaddou_node_gamma$p.value, digits=3), signif(cor_bouhaddou_node_delta$p.value, digits=3), signif(cor_bouhaddou_pcst_beta$p.value, digits=3), signif(cor_bouhaddou_pcst_gamma$p.value, digits=3)
+), ncol = 5, byrow = TRUE))
+
+data <- t(data)
+rownames(data) <- c('FS', 'DIFF', 'CORR', 'FS + PCST', 'DIFF + PCST')
+colnames(data) <- c("PI3K inhibition in resistant\n breast cancer cell line\n (Pearson's correlation coefficient)", 'PI3K inhibition in resistant\n breast cancer cell line\n (P-value)', "SARS-CoV-2\n (Pearson's correlation\n coefficient)", 'SARS-CoV-2\n (P-value)')
+table <- tableGrob(
+  data,
+  theme = ttheme_default(base_size = 8)
+)
+ggarrange(table, ncol = 1, nrow = 1)
 
 
 #####################

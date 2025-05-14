@@ -322,7 +322,7 @@ plot_total_effect_size <- function(wilkes_p_vals_noderf, bouhaddou_p_vals_noderf
     p_vals <- p_vals[!is.na(p_vals)]
     if(p_val_plot){
       p_vals <- p.adjust(p_vals, "BH")
-      print(p_vals)
+      # print(p_vals)
       p_vals <- -log10(p_vals)
     }
     mean_p <- mean(p_vals)
@@ -412,10 +412,11 @@ plot_total_effect_size <- function(wilkes_p_vals_noderf, bouhaddou_p_vals_noderf
       geom_point(aes(group=condition)) +  # Points for means
       geom_ribbon(aes(ymin = lower, ymax = upper, fill = col), alpha = 0.2, color = NA) + # Confidence interval
       scale_x_discrete(labels = hyperparam_labels) +
-      ylim(0, upper_ylim) +
+      scale_y_continuous(trans = 'log10') +
+     # ylim(0, upper_ylim) +
       # scale_y_continuous(limits = c(0, round(max(data$upper) + 0.05, str_count(gsub(".*[.]","",as.character(max(data$upper))), "0")+1)), breaks = waiver(), n.breaks = 5) +
       xlab("Hyperparameter values") +
-      ylab(expression('Mean adjusted -log'[10]*'-P-value')) + 
+      ylab(expression('Mean adjusted -log'[10]*'(P)')) + 
       theme_minimal() +
       theme(
         axis.text = element_text(size = 14, angle = 45, hjust = 1),
@@ -428,17 +429,22 @@ plot_total_effect_size <- function(wilkes_p_vals_noderf, bouhaddou_p_vals_noderf
       geom_line(aes(group=condition)) +  # Line plot for mean p-value
       geom_point(aes(group=condition)) +  # Points for means
       geom_ribbon(aes(ymin = lower, ymax = upper, fill = col), alpha = 0.2, color = NA) +  # Confidence interval
-      ylim(0, upper_ylim) +
+      scale_y_continuous(trans = 'log10') +
+      # ylim(0, upper_ylim) +
       scale_x_discrete(labels = do.call(expression, hyperparam_labels)) +
       xlab("Hyperparameter values") +
-      ylab(expression('Mean adjusted -log'[10]*'-P-value')) + 
+      ylab(expression('Mean adjusted -log'[10]*'(P)')) + 
       theme_minimal() + 
       theme(
         axis.text = element_text(size = 14, angle = 45, hjust = 1),
         axis.title = element_text(size = 16),
         plot.title = element_text(size = 18, hjust = 0.5),
-        legend.text = element_text(size = 16)
+        legend.text = element_text(size = 16) 
       )
+      # scale_y_continuous(trans='log10')
+  }
+  if (p_val_plot) {
+    plot <- plot +geom_hline(yintercept = -log10(0.05), color='purple', linetype="dashed")
   }
   return(plot)
 }
