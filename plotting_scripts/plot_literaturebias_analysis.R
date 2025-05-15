@@ -1,6 +1,9 @@
 library(tidyverse)
 library(ggplot2)
 library(readxl)
+library(gridExtra)
+library(ggpubr)
+library(patchwork)
 
 biomart <- read_tsv('./data/biomart/mart_export_human_uniprot.txt')
 
