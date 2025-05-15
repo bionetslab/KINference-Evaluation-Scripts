@@ -338,9 +338,9 @@ cor.test(wilkes_pcst_beta_vals, unname(unlist(wilkes_pcst_literatureBias_beta)))
 # Correlation result: Table
 data <- data.frame(matrix(c(
   signif(cor_wilkes_node_beta$estimate, digits=3), signif(cor_wilkes_node_gamma$estimate, digits=3), "NA", signif(cor_wilkes_pcst_beta$estimate, digits=3), signif(cor_wilkes_pcst_gamma$estimate, digits=3),
-  signif(p.adjust(cor_wilkes_node_beta$p.value, method = "BH", n=3), digits=3), signif(p.adjust(cor_wilkes_node_gamma$p.value, method = "BH", n=5), digits=3), "NA", signif(p.adjust(cor_wilkes_pcst_beta$p.value, method = "BH", n = 3), digits=3), signif(p.adjust(cor_wilkes_pcst_gamma$p.value, method = "BH", n = 5), digits=3),
+  signif(p.adjust(cor_wilkes_node_beta$p.value, method = "BH", n=4), digits=3), signif(p.adjust(cor_wilkes_node_gamma$p.value, method = "BH", n=4), digits=3), "NA", signif(p.adjust(cor_wilkes_pcst_beta$p.value, method = "BH", n = 4), digits=3), signif(p.adjust(cor_wilkes_pcst_gamma$p.value, method = "BH", n = 4), digits=3),
   signif(cor_bouhaddou_node_beta$estimate, digits=3), signif(cor_bouhaddou_node_gamma$estimate, digits=3), signif(cor_bouhaddou_node_delta$estimate, digits=3), signif(cor_bouhaddou_pcst_beta$estimate, digits=3), signif(cor_bouhaddou_pcst_gamma$estimate, digits=3),
-  signif(p.adjust(cor_bouhaddou_node_beta$p.value, method = "BH", n = 3), digits=3), signif(p.adjust(cor_bouhaddou_node_gamma$p.value, method = "BH", n = 5), digits=3), signif(p.adjust(cor_bouhaddou_node_delta$p.value, method = "BH", n = 3), digits=3), signif(p.adjust(cor_bouhaddou_pcst_beta$p.value, method = "BH", n = 3), digits=3), signif(p.adjust(cor_bouhaddou_pcst_gamma$p.value, method = "BH", n = 5), digits=3)
+  signif(p.adjust(cor_bouhaddou_node_beta$p.value, method = "BH", n = 5), digits=3), signif(p.adjust(cor_bouhaddou_node_gamma$p.value, method = "BH", n = 5), digits=3), signif(p.adjust(cor_bouhaddou_node_delta$p.value, method = "BH", n = 5), digits=3), signif(p.adjust(cor_bouhaddou_pcst_beta$p.value, method = "BH", n = 5), digits=3), signif(p.adjust(cor_bouhaddou_pcst_gamma$p.value, method = "BH", n = 5), digits=3)
 ), ncol = 5, byrow = TRUE))
 
 data <- t(data)
